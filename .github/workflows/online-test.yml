@@ -1,0 +1,21 @@
+name: Online test (two phones over the internet)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  online:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: |
+          mkdir -p /tmp/t && cd /tmp/t && npm init -y >/dev/null && npm i peerjs@1.5.4 playwright@1.47.2
+          npx playwright install --with-deps chromium
+          cp node_modules/peerjs/dist/peerjs.min.js $GITHUB_WORKSPACE/
+      - run: |
+          python3 -m http.server 8080 >/dev/null 2>&1 &
+          sleep 1
+          cd /tmp/t && NODE_PATH=/tmp/t/node_modules node $GITHUB_WORKSPACE/.github/ci/online-test.js

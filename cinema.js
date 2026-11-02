@@ -145,11 +145,11 @@ function cinHero(e){const c=G.cin,S2=c.S*1.05,pl=P[c.w];if(c.id==='giant')return
 function cinGiant(e){const c=G.cin;if(c.id!=='giant'||!(c.ga>0))return;const S=c.S,[vx,vy]=cinV(),sc=c.gsc;
   ctx.save();ctx.globalAlpha=c.ga;ctx.translate(vx,vy+S*.1);ctx.scale(sc,sc);ctx.translate(0,-0.6*S);drawHandShape(ctx,S,{palmUp:false,look:P[c.w].look,sleeveLen:H,onTop:true,t:G.t,lift:Math.min(1,(sc-1)/3)});ctx.restore();}
 function drawCinema(){const c=G.cin,e=G.t-c.t0,S=c.S,[vx,vy]=cinV();
-  if(c.vid&&c.vid.readyState>=2&&(c.vid.currentTime>0||c.vid.ended)){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);ctx.save();if(viewFrame(c.w)===1){ctx.translate(W,H);ctx.rotate(PI);}
+  if(c.vid&&c.vid.readyState>=2&&(c.vid.currentTime>0||c.vid.ended)){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);ctx.save();if(G.online?!!G.netGuest:viewFrame(c.w)===1){ctx.translate(W,H);ctx.rotate(PI);}
     const vw=c.vid.videoWidth||720,vh=c.vid.videoHeight||1280,k=Math.max(W/vw,H/vh);ctx.drawImage(c.vid,(W-vw*k)/2,(H-vh*k)/2,vw*k,vh*k);ctx.restore();
     if(c.titled){const u=seg(e,CIN_TITLE[c.id],CIN_TITLE[c.id]+500);const rg=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.max(W,H)*.7);rg.addColorStop(0,'rgba(60,0,8,0)');rg.addColorStop(1,`rgba(70,0,10,${.45*u})`);ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);}return;}
   ctx.setTransform(DPR,0,0,DPR,0,0);ctx.save();
-  if(viewFrame(c.w)===1){ctx.translate(W,H);ctx.rotate(PI);}
+  if(G.online?!!G.netGuest:viewFrame(c.w)===1){ctx.translate(W,H);ctx.rotate(PI);}
   const cam=cinCam(e);ctx.translate(W/2,H/2);ctx.scale(cam.z,cam.z);ctx.translate(-cam.x,-cam.y);
   ctx.translate(rand(-c.sh,c.sh),rand(-c.sh,c.sh));
   if(window.CIN_HQ)layerDraw(()=>cinBG(c.id,e),'blur(2.2px) saturate(1.15)');else cinBG(c.id,e);

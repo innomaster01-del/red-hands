@@ -556,7 +556,7 @@ function drawHUD(p){
   inFrame(p,()=>{const by=H/2-(p===0||G.mode!=='2p'?SAFE.b:SAFE.t),cin=G.cine||0;
     if(cin<.4){ctx.save();ctx.globalAlpha=1-cin*2.5;hudCapsule(p,-W/2+12,by-58,isAtt);
       const nm=G.mode==='2p'?(G.names[p]||col.name()):t('you');rolePill(nm+' · '+(isAtt?t('attacker'):t('defender')),W/2-12,by-50,isAtt,col);ctx.restore();}
-    if(!pl.ai&&!G.demo&&G.mode!=='tut'&&(G.phase==='armed'||G.phase==='reset')&&!pl.buf.length){
+    if(!pl.ai&&!pl.remote&&!G.demo&&G.mode!=='tut'&&(G.phase==='armed'||G.phase==='reset')&&!pl.buf.length){
       if(canDouble(p)&&!pl.armSp){const rr=dblRect(),pulse=.5+.5*Math.sin(G.t/160);const path=rrPath(rr.x,rr.y,rr.w,rr.h,20);
         ctx.save();ctx.shadowColor='#ffd23f';ctx.shadowBlur=10+8*pulse;ctx.fillStyle=pl.dbl?'#3ee08f':'#ffd23f';ctx.fill(path);ctx.restore();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=2;ctx.stroke(path);
         ctx.fillStyle='#22164f';ctx.font='800 15px -apple-system,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.direction=LANG==='he'?'rtl':'ltr';ctx.fillText(pl.dbl?t('dbl_on'):t('dbl_btn'),0,rr.y+rr.h/2+1);}

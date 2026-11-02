@@ -423,6 +423,40 @@ body{-webkit-font-smoothing:antialiased}
 #pre .field input:focus{border-color:rgba(255,110,130,.7)}
 #pre .note{color:rgba(235,235,245,.55);opacity:1}
 #pre .btn{background:#fff;color:#1c1440;box-shadow:none;border-radius:14px;font:600 17px -apple-system,system-ui,sans-serif}
+
+/* ===== v14: online ===== */
+#online .hide{display:none}
+.osheet,#onres{color:#fff}
+.osheet{width:min(420px,100%);background:rgba(22,14,58,.86);border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:18px 18px 14px;-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);box-shadow:0 30px 60px rgba(0,0,0,.4);animation:rise .45s cubic-bezier(.2,.9,.25,1) both}
+.ohead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ohead h2{margin:0;font:800 30px -apple-system,system-ui,sans-serif;letter-spacing:-.035em;background:linear-gradient(180deg,#ff8a9a,#ff4d63 45%,#d91e3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.osheet .x{background:rgba(255,255,255,.1);color:#fff}
+.onrank{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:2px 12px;background:rgba(0,0,0,.2);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.onrank b{font:800 28px -apple-system,system-ui,sans-serif;font-variant-numeric:tabular-nums;justify-self:end}
+.onrank small{grid-column:1/-1;color:rgba(235,235,245,.55);font:500 13px -apple-system,system-ui,sans-serif}
+.onrank .onbar{grid-column:1/-1;height:5px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:6px}.onrank .onbar i{display:block;height:100%;background:linear-gradient(90deg,#ff8a9a,#ff4d63);border-radius:5px}
+.orb{display:inline-block;padding:4px 11px;border-radius:99px;font:700 13px -apple-system,system-ui,sans-serif;color:var(--rc);background:color-mix(in srgb,var(--rc) 16%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rc) 45%,transparent)}
+.osheet .btn,#onres .btn{font:600 17px -apple-system,system-ui,sans-serif;border-radius:14px;min-height:52px;margin:8px 0;background:rgba(255,255,255,.1);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.osheet .btn:active,#onres .btn:active{transform:scale(.97)}
+.osheet .obig,#onres #orAgain{background:#fff;color:#1c1440;box-shadow:none}
+.osheet .ghost{background:transparent}
+#onres #orAgain.on{background:rgba(255,77,99,.22);color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,110,130,.7)}
+.oncode{font:800 64px/1.1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-align:center;margin:6px 0 4px;background:linear-gradient(180deg,#fff,#c9c3ff);-webkit-background-clip:text;background-clip:text;color:transparent;min-height:20px}
+#onCodeIn{width:100%;text-align:center;font:800 44px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.3em;text-transform:uppercase;padding:10px;border-radius:16px;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.25);color:#fff;outline:none;-webkit-user-select:text;user-select:text}
+#onCodeIn:focus{border-color:rgba(255,110,130,.7)}
+.onst{min-height:22px;margin:8px 0 0;text-align:center;font:500 14px -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.7)}
+.onst.busy::before{content:'';display:inline-block;width:12px;height:12px;margin-inline-end:8px;vertical-align:-1px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#ff6a7d;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#onres{flex-direction:column;text-align:center;gap:4px;padding:24px}
+#onres > *{width:min(360px,100%)}
+.orw{font:800 clamp(48px,15vw,68px)/1 -apple-system,system-ui,sans-serif;letter-spacing:-.04em;color:rgba(235,235,245,.8);animation:duopop .6s cubic-bezier(.34,1.56,.64,1) both}
+.orw.won{background:linear-gradient(180deg,#ff8a9a,#ff4d63 45%,#d91e3d);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 8px 24px rgba(255,60,90,.35))}
+.ors{font:700 30px -apple-system,system-ui,sans-serif;font-variant-numeric:tabular-nums;min-height:6px}
+.orr{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px auto 2px}
+.orr b{font:800 34px -apple-system,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.orr i{font:700 17px -apple-system,system-ui,sans-serif;font-style:normal;animation:duopop .6s cubic-bezier(.34,1.56,.64,1) both .5s}.orr i.up{color:#5be38f}.orr i.dn{color:#ff6a7d}
+.orc{font:500 14px -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.6);margin-bottom:10px}
+.orst{min-height:20px;font:500 14px -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.7)}
 </style>
 </head>
 <body>
@@ -550,6 +584,26 @@ body{-webkit-font-smoothing:antialiased}
   <button class="btn b2" id="gGo"></button>
 </div></div>
 
+<div id="online" class="ov dim hide"><div class="osheet">
+  <div class="ohead"><h2 data-t="on_title"></h2><button class="x" id="onClose" aria-label="close">✕</button></div>
+  <div class="onrank" id="onRank"></div>
+  <div id="onHome">
+    <button class="btn obig" id="onQuick" data-t="on_quick"></button>
+    <button class="btn" id="onHost" data-t="on_host"></button>
+    <button class="btn" id="onJoinBtn" data-t="on_join"></button>
+  </div>
+  <div id="onRoom" class="hide">
+    <div class="oncode" id="onCode"></div>
+    <button class="btn" id="onShare" data-t="on_share"></button>
+    <button class="btn ghost" id="onCancel" data-t="on_cancel"></button>
+  </div>
+  <div id="onJoin" class="hide">
+    <input id="onCodeIn" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD">
+    <button class="btn obig" id="onJoinGo" data-t="on_joingo"></button>
+  </div>
+  <p class="onst" id="onStatus" role="status"></p>
+</div></div>
+<div id="onres" class="ov dim hide"></div>
 <div id="duo" class="hide"></div>
 <div id="over" class="ov dim hide"><div class="sheet">
   <div class="win" id="winTxt"></div>
@@ -580,6 +634,7 @@ body{-webkit-font-smoothing:antialiased}
 <script src="ui.js"></script>
 <script src="menufx.js"></script>
 <script src="duo.js"></script>
+<script src="online.js"></script>
 <script src="pwa.js"></script>
 </body>
 </html>

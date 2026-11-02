@@ -87,7 +87,7 @@ function drawStrokes(){strokes=strokes.filter(s=>G.t-s.t<(s.ok?520:380));
     if(h.path.length<6)drawShapeHints(pl,h.path[0][0],h.path[0][1],u);
     chalkStroke(ctx,h.path,6,.95);});});});}
 // what can I draw right now? only shown while the finger is down and still — then it gets out of the way
-function drawShapeHints(pl,x,y,u){const fin=G.phase==='finish',list=fin?FINISHERS:SPECIALS.filter(sp=>G.mode==='tut'||spUnlocked(sp));if(!list.length)return;
+function drawShapeHints(pl,x,y,u){if(pl.remote)return;const fin=G.phase==='finish',list=fin?FINISHERS:SPECIALS.filter(sp=>G.mode==='tut'||spUnlocked(sp));if(!list.length)return;
   const s=Math.min(16,W*.04),gap=Math.min(W/4.6,88),n=list.length,yy=Math.max(122,y-0.8*L),x0=clamp(x,-W/2+gap*n/2,W/2-gap*n/2);
   list.forEach((m,i)=>{const gx=x0+(i-(n-1)/2)*gap,ok=fin||G.mode==='tut'||pl.energy>=m.cost;
     {const pth=rrPath(gx-gap*.46,yy-s*1.55,gap*.92,s*3.55,16);ctx.save();ctx.globalAlpha=u;ctx.fillStyle=ok?'rgba(30,18,90,.32)':'rgba(30,18,90,.2)';ctx.fill(pth);ctx.globalAlpha=u*.45;ctx.strokeStyle=ok?m.col||'rgba(255,255,255,.5)':'rgba(255,255,255,.15)';ctx.lineWidth=1;ctx.stroke(pth);ctx.restore();}
@@ -95,7 +95,7 @@ function drawShapeHints(pl,x,y,u){const fin=G.phase==='finish',list=fin?FINISHER
     ctx.save();ctx.globalAlpha=(ok?.65:.3)*u;ctx.font=`800 ${Math.round(s*.72)}px ${DISP}`;ctx.textAlign='center';ctx.textBaseline='top';ctx.direction='ltr';ctx.fillStyle='#fff';
     ctx.fillText(fin?t('fin_'+m.id):t('sps_'+m.id)+' ⚡'+m.cost,gx,yy+s*1.3,gap*.84);ctx.restore();});}
 // "FINISH THEM": the finishers chalked onto the table, nothing more
-function drawFinishChalk(){const p=G.finW;if(G.phase!=='finish'||p==null||P[p].ai)return;const pl=P[p];if(pl.hands.some(h=>h.draw))return;
+function drawFinishChalk(){const p=G.finW;if(G.phase!=='finish'||p==null||P[p].ai||P[p].remote)return;const pl=P[p];if(pl.hands.some(h=>h.draw))return;
   inFrame(p,()=>{const e=G.t-G.pt,n=FINISHERS.length,gw=Math.min(W-16,440),tw=gw/n-6,th=tw*1.25,s=tw*.24,y=H/2-SAFE.b-(G.cine||0)*H*.085-th/2-14;
     ctx.save();ctx.globalAlpha=(.75+.25*Math.sin(G.t/160))*Math.min(1,e/400);outlinedText(ctx,t('fin_pick'),0,y-th/2-20,Math.min(20,W*.05),'#fff',OUT,900,'ltr');ctx.restore();
     FINISHERS.forEach((f,i)=>{const gx=(i-(n-1)/2)*(tw+6),pr=clamp((e-200-i*120)/380,0,1);if(pr<=0)return;const pop=1-Math.pow(1-pr,3);

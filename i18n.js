@@ -207,3 +207,12 @@ Object.assign(STR.en,{duo_hold:'Put a finger on your hand',duo_wait:n=>`Ready �
 Object.assign(STR.he,{duo_hold:'שים אצבע על היד שלך',duo_wait:n=>`מוכן — מחכים ל${n}`,duo_go:'יוצאים לדרך',duo_series:'סדרה',duo_first:'מי שמכה 5 פעמים מנצח',duo_win:'ניצחת',duo_lose:'הפסדת',duo_rematch:'עוד משחק',duo_share:'שתף תוצאה'});
 Object.assign(STR.en,{guide:STR.en.guide.map(g=>g[0]==='fatal'?['fatal','☠️','Finisher','"FINISH HIM!" — draw the finisher\'s own shape: W Thunderstorm · M Inferno · V Deep Freeze · ∞ Tornado · ☆ Giant Slap']:g),
  mv_fin_how:'When the opponent hits 0, "FINISH HIM!" appears: you have 7 seconds to draw a finisher. Each finisher has its own shape, harder than the specials — draw it big and clean.'});
+Object.assign(STR.en,{btn_online:'Play Online',on_title:'Online',on_quick:'Quick Match',on_host:'Play a Friend',on_join:'Join with a Code',on_joingo:'Join',on_share:'Send the Code',on_cancel:'Cancel',
+ on_waiting:'Waiting for your friend to join…',on_connecting:'Connecting…',on_searching:'Looking for an opponent…',on_found:n=>`Matched with ${n}`,on_nobody:'Nobody is online right now. Keep waiting, or play the computer.',
+ on_busy:'Every table is busy. Try again in a minute.',on_nonet:'No connection. Check your internet and try again.',on_badcode:'A code has 4 letters.',on_nocode:'No game with that code. Check the letters with your friend.',
+ on_version:'Your friend has a different version. Both of you need to update.',on_lost:'The connection dropped.',on_left:n=>`${n} left the game`,on_leave:'Leave',on_wants:n=>`${n} wants a rematch`,
+ on_wins:'wins',on_losses:'losses',on_tonext:'points to the next rank',on_invite:c=>`Slap me in Red Hands! Open Play Online → Join with a Code → ${c}`});
+Object.assign(STR.he,{btn_online:'משחק אונליין',on_title:'אונליין',on_quick:'משחק מהיר',on_host:'שחק עם חבר',on_join:'הצטרף עם קוד',on_joingo:'הצטרף',on_share:'שלח את הקוד',on_cancel:'ביטול',
+ on_waiting:'מחכים שהחבר יצטרף…',on_connecting:'מתחבר…',on_searching:'מחפש יריב…',on_found:n=>`נמצא יריב: ${n}`,on_nobody:'אין אף אחד מחובר כרגע. אפשר לחכות או לשחק נגד המחשב.',
+ on_busy:'כל השולחנות תפוסים. נסה שוב בעוד דקה.',on_nonet:'אין חיבור. בדוק את האינטרנט ונסה שוב.',on_badcode:'לקוד יש 4 אותיות.',on_nocode:'אין משחק עם הקוד הזה. בדקו את האותיות.',
+ on_version:'לחבר יש גרסה אחרת. שניכם צריכים לעדכן.',on_lost:'החיבור נפל.',on_left:n=>`${n} יצא מהמשחק`,on_leave:'יציאה',on_wants:n=>`${n} רוצה עוד משחק`,on_wins:'ניצחונות',on_losses:'הפסדים',on_tonext:'נקודות לדרגה הבאה',on_invite:c=>`בוא נשחק Red Hands! משחק אונליין ← הצטרף עם קוד ← ${c}`});

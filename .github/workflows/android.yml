@@ -28,7 +28,8 @@ jobs:
           mkdir www
           rsync -a --exclude '.git' --exclude '.github' --exclude 'README.md' ../src/ www/
           npm init -y >/dev/null
-          npm i @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+          npm i @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 peerjs@1.5.4
+          cp node_modules/peerjs/dist/peerjs.min.js www/
           npx cap init "Red Hands" com.innomaster.redhands --web-dir www
           npx cap add android
           npx cap sync android

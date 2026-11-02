@@ -1,7 +1,7 @@
 // ===== two players, one phone: face-off start, series score, a result screen for each side, rematch by consent =====
 (()=>{
 const $d=id=>document.getElementById(id);
-let SER={key:'',s:[0,0]};
+let SER={key:'',s:[0,0]};window.DUO_SER_GET=()=>SER;window.DUO_SER_SET=v=>{SER=v;};
 const serKey=()=>(G.names||[]).join('|');
 
 // ---- face-off: the countdown waits until both players have a finger on their hand ----
