@@ -1,0 +1,65 @@
+name: Build Android app
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: android
+  cancel-in-progress: true
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Create the Capacitor shell
+        run: |
+          mkdir app && cd app
+          mkdir www
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'README.md' ../src/ www/
+          npm init -y >/dev/null
+          npm i @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7
+          npx cap init "Red Hands" com.innomaster.redhands --web-dir www
+          npx cap add android
+          npx cap sync android
+      - name: Portrait, full screen, vibration, app icon
+        run: |
+          cd app/android/app/src/main
+          sed -i 's#<activity#<activity android:screenOrientation="portrait"#' AndroidManifest.xml
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.VIBRATE" />#' AndroidManifest.xml
+          rm -rf res/mipmap-anydpi-v26
+          ICON=../../../../www/icons/icon-512.png
+          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            n=${d%%:*}; s=${d##*:}
+            convert "$ICON" -resize ${s}x${s} res/mipmap-$n/ic_launcher.png
+            convert "$ICON" -resize ${s}x${s} \( +clone -threshold -1 -negate -fill white -draw "circle $((s/2)),$((s/2)) $((s/2)),0" \) -alpha off -compose copy_opacity -composite res/mipmap-$n/ic_launcher_round.png
+            rm -f res/mipmap-$n/ic_launcher_foreground.png
+          done
+          sed -i 's#<item name="android:background">@drawable/splash</item>#<item name="android:background">@drawable/splash</item>\n        <item name="android:windowFullscreen">true</item>#' res/values/styles.xml || true
+          grep -n "screenOrientation\|VIBRATE" AndroidManifest.xml
+      - name: Build APK
+        run: |
+          cd app/android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          cp app/build/outputs/apk/debug/app-debug.apk ../../RedHands.apk
+          ls -la ../../RedHands.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-latest
+          name: Red Hands for Android
+          body: |
+            Download **RedHands.apk** on your Android phone and open it to install.
+            Android will ask to allow installs from this source the first time — allow it, then tap Install.
+          files: RedHands.apk
+          make_latest: true
