@@ -38,11 +38,8 @@ jobs:
           sed -i 's#<activity#<activity android:screenOrientation="portrait"#' AndroidManifest.xml
           sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.VIBRATE" />#' AndroidManifest.xml
           rm -rf res/mipmap-anydpi-v26
-          ICON=../../../../www/icons/icon-512.png
-          for d in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
-            n=${d%%:*}; s=${d##*:}
-            convert "$ICON" -resize ${s}x${s} res/mipmap-$n/ic_launcher.png
-            convert "$ICON" -resize ${s}x${s} \( +clone -threshold -1 -negate -fill white -draw "circle $((s/2)),$((s/2)) $((s/2)),0" \) -alpha off -compose copy_opacity -composite res/mipmap-$n/ic_launcher_round.png
+          for n in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            cp ../../../../www/android-icons/mipmap-$n/*.png res/mipmap-$n/
             rm -f res/mipmap-$n/ic_launcher_foreground.png
           done
           sed -i 's#<item name="android:background">@drawable/splash</item>#<item name="android:background">@drawable/splash</item>\n        <item name="android:windowFullscreen">true</item>#' res/values/styles.xml || true
