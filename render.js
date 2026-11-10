@@ -64,17 +64,36 @@ function drawArenaBase(c,id,W,H,t){
     c.save();c.shadowBlur=12;const s=Math.max(W,H)/10;c.lineWidth=1.5;
     c.strokeStyle='rgba(255,60,200,.45)';c.shadowColor='#ff3cc8';for(let x=((t*0.02)%s);x<W;x+=s){c.beginPath();c.moveTo(x,0);c.lineTo(x,H);c.stroke();}
     c.strokeStyle='rgba(60,220,255,.45)';c.shadowColor='#3cdcff';for(let y=0;y<H;y+=s){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}c.restore();
-  }else{
-    const g=c.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.75);g.addColorStop(0,'#8a7cff');g.addColorStop(.6,'#6252e6');g.addColorStop(1,'#3a2a9a');
-    c.fillStyle=g;c.fillRect(-50,-50,W+100,H+100);
-    c.save();c.globalAlpha=.06;c.strokeStyle='#fff';c.lineWidth=14;const step=46,off=(t*0.012)%step;
-    for(let x=-H-step;x<W+H;x+=step){c.beginPath();c.moveTo(x+off,0);c.lineTo(x+off+H,H);c.stroke();}c.restore();
-    // soft play mat in the centre + floor glow for depth
-    const mw=Math.min(W*0.92,520),mh=Math.min(H*0.78,760);c.save();c.shadowColor='rgba(20,8,70,.45)';c.shadowBlur=40;c.fillStyle='rgba(70,52,200,.35)';c.fill(rrPath(cx-mw/2,cy-mh/2,mw,mh,48));c.restore();
-    const mg=c.createRadialGradient(cx,cy,0,cx,cy,Math.max(mw,mh)*.6);mg.addColorStop(0,'rgba(255,255,255,.12)');mg.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=mg;c.fill(rrPath(cx-mw/2,cy-mh/2,mw,mh,48));
-    c.strokeStyle='rgba(255,255,255,.12)';c.lineWidth=1.5;c.stroke(rrPath(cx-mw/2,cy-mh/2,mw,mh,48));
-  }
+  }else drawStage(c,W,H,t);
 }
+// ---- the default table: a lit game mat. Static parts are painted once and cached; light and dust move on top. ----
+let STAGE=null;
+function stageBase(W,H){const d=Math.min(2,window.devicePixelRatio||1),key=W+'x'+H+'@'+d;if(STAGE&&STAGE.key===key)return STAGE.cv;
+  const cv=document.createElement('canvas');cv.width=Math.round(W*d);cv.height=Math.round(H*d);const c=cv.getContext('2d');c.scale(d,d);const cx=W/2,cy=H/2,M=Math.max(W,H),r=seeded(77);
+  let g=c.createRadialGradient(cx,cy,0,cx,cy,M*.78);g.addColorStop(0,'#7f6dff');g.addColorStop(.42,'#5a45de');g.addColorStop(.78,'#34209c');g.addColorStop(1,'#180c50');c.fillStyle=g;c.fillRect(0,0,W,H);
+  // two coloured washes so the table isn't one flat hue
+  [[W*.9,H*.12,'255,96,176',.2],[W*.08,H*.9,'70,170,255',.2],[W*.1,H*.1,'150,110,255',.14]].forEach(([x,y,col,a])=>{g=c.createRadialGradient(x,y,0,x,y,M*.55);g.addColorStop(0,`rgba(${col},${a})`);g.addColorStop(1,`rgba(${col},0)`);c.fillStyle=g;c.fillRect(0,0,W,H);});
+  // woven cloth: two faint thread directions + grain
+  c.save();c.globalAlpha=.045;c.strokeStyle='#fff';c.lineWidth=1;for(let i=-H;i<W+H;i+=7){c.beginPath();c.moveTo(i,0);c.lineTo(i+H,H);c.stroke();}
+  c.globalAlpha=.03;c.strokeStyle='#0a0440';for(let i=-H;i<W+H;i+=7){c.beginPath();c.moveTo(i+H,0);c.lineTo(i,H);c.stroke();}c.restore();
+  for(let i=0;i<W*H/260;i++){c.fillStyle=r()<.5?`rgba(255,255,255,${.02+r()*.04})`:`rgba(8,2,40,${.03+r()*.06})`;c.fillRect(r()*W,r()*H,1.2,1.2);}
+  // the mat: a raised panel with a bevel, stitched border and a centre ring
+  const mw=W*.9,mh=H*.8,mx=cx-mw/2,my=cy-mh/2,R=Math.min(52,W*.13),mat=rrPath(mx,my,mw,mh,R);
+  c.save();c.shadowColor='rgba(8,2,44,.55)';c.shadowBlur=26;c.shadowOffsetY=10;g=c.createLinearGradient(0,my,0,my+mh);g.addColorStop(0,'rgba(150,132,255,.2)');g.addColorStop(.5,'rgba(120,100,250,.1)');g.addColorStop(1,'rgba(60,40,170,.22)');c.fillStyle=g;c.fill(mat);c.restore();
+  c.save();c.clip(mat);g=c.createRadialGradient(cx,cy,0,cx,cy,mh*.6);g.addColorStop(0,'rgba(255,255,255,.1)');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(mx,my,mw,mh);
+  c.strokeStyle='rgba(8,2,44,.35)';c.lineWidth=10;c.stroke(mat);c.restore();
+  c.strokeStyle='rgba(255,255,255,.3)';c.lineWidth=1.4;c.stroke(mat);
+  c.save();c.setLineDash([7,7]);c.strokeStyle='rgba(255,255,255,.16)';c.lineWidth=1.2;c.stroke(rrPath(mx+11,my+11,mw-22,mh-22,R-9));c.restore();
+  [.3,.2].forEach((k,i)=>{c.strokeStyle=`rgba(255,255,255,${i?.09:.07})`;c.lineWidth=i?1.2:8;c.beginPath();c.arc(cx,cy,W*k,0,PI*2);c.stroke();});
+  // vignette
+  g=c.createRadialGradient(cx,cy,M*.32,cx,cy,M*.74);g.addColorStop(0,'rgba(6,2,36,0)');g.addColorStop(1,'rgba(6,2,36,.6)');c.fillStyle=g;c.fillRect(0,0,W,H);
+  STAGE={key,cv};return cv;}
+function drawStage(c,W,H,t){c.drawImage(stageBase(W,H),0,0,W,H);
+  // a lamp that drifts slowly, and a soft sweep of light across the cloth
+  c.save();c.globalCompositeOperation='lighter';const lx=W/2+Math.sin(t/5200)*W*.22,ly=H/2+Math.cos(t/6900)*H*.16,M=Math.max(W,H);
+  let g=c.createRadialGradient(lx,ly,0,lx,ly,M*.5);g.addColorStop(0,'rgba(170,150,255,.2)');g.addColorStop(1,'rgba(170,150,255,0)');c.fillStyle=g;c.fillRect(0,0,W,H);
+  const sx=((t/9000)%1.6-.3)*W;g=c.createLinearGradient(sx-W*.25,0,sx+W*.25,H*.4);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,'rgba(255,255,255,.055)');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(0,0,W,H);
+  c.restore();}
 // the default table: billiard-green felt under one warm lamp, worn chalk marks
 let FELT=null;
 function feltTex(c){if(FELT)return FELT;const n=document.createElement('canvas');n.width=n.height=128;const x=n.getContext('2d'),r=seeded(9);
@@ -105,8 +124,8 @@ function arenaLife(c,id,W,H,t){
       c.strokeStyle=g;c.lineWidth=2.5;c.beginPath();c.moveTo(x-80,y-40);c.lineTo(x,y);c.stroke();}}
   else if(id==='ar_neon'){const y=(t*0.15)%(H+200)-100;const g=c.createLinearGradient(0,y-60,0,y+60);g.addColorStop(0,'rgba(60,220,255,0)');g.addColorStop(.5,'rgba(60,220,255,.12)');g.addColorStop(1,'rgba(60,220,255,0)');c.fillStyle=g;c.fillRect(0,y-60,W,120);
     if(Math.sin(t/53)*Math.sin(t/171)>0.93){c.fillStyle='rgba(255,60,200,.06)';c.fillRect(0,0,W,H);}}
-  else if(id==='ar_purple'||!id){for(let i=0;i<14;i++){const r=seeded(i+20);const sp=0.012+r()*0.02,x=r()*W+Math.sin(t/1500+i)*14,y=H+30-((t*sp+r()*H*2)%(H+60)),rad=4+r()*10;
-    c.globalAlpha=.16;c.strokeStyle='#fff';c.lineWidth=2;c.beginPath();c.arc(x,y,rad,0,PI*2);c.stroke();c.globalAlpha=.25;c.fillStyle='#fff';c.beginPath();c.arc(x-rad*.35,y-rad*.35,rad*.2,0,PI*2);c.fill();}}
+  else if(id==='ar_purple'||!id){c.globalCompositeOperation='lighter';for(let i=0;i<18;i++){const r=seeded(i+20);const sp=0.006+r()*0.014,x=r()*W+Math.sin(t/2100+i*1.7)*22,y=H+30-((t*sp+r()*H*2)%(H+60)),rad=3+r()*r()*16,tw=.5+.5*Math.sin(t/(700+r()*900)+i);
+    const g=c.createRadialGradient(x,y,0,x,y,rad);g.addColorStop(0,`rgba(255,255,255,${(.05+.16*tw)*(rad<8?1.6:.7)})`);g.addColorStop(.6,`rgba(190,170,255,${.03*tw})`);g.addColorStop(1,'rgba(190,170,255,0)');c.fillStyle=g;c.fillRect(x-rad,y-rad,rad*2,rad*2);}}
   c.restore();
 }
 // cartoon face with expressions

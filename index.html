@@ -457,6 +457,32 @@ body{-webkit-font-smoothing:antialiased}
 .orr i{font:700 17px -apple-system,system-ui,sans-serif;font-style:normal;animation:duopop .6s cubic-bezier(.34,1.56,.64,1) both .5s}.orr i.up{color:#5be38f}.orr i.dn{color:#ff6a7d}
 .orc{font:500 14px -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.6);margin-bottom:10px}
 .orst{min-height:20px;font:500 14px -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.7)}
+
+/* ===== v15: career ladder; local two-player and the speed picker are gone ===== */
+#b2p,#menu .opts > .lbl,#speed{display:none!important}
+#menu .opts .toggle{border-top:0;margin-top:0;padding-top:4px}
+.crsheet{width:min(440px,100%);max-height:calc(100dvh - 40px - env(safe-area-inset-top) - env(safe-area-inset-bottom));display:flex;flex-direction:column;color:#fff;background:rgba(22,14,58,.9);border:1px solid rgba(255,255,255,.12);border-radius:26px;padding:18px 12px 10px;-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);box-shadow:0 30px 60px rgba(0,0,0,.4);animation:rise .45s cubic-bezier(.2,.9,.25,1) both}
+.crsheet .ohead{padding:0 6px;gap:10px}.crsheet .ohead h2{margin-inline-end:auto}
+.crsheet .x{background:rgba(255,255,255,.1);color:#fff}
+.crtot{font:600 14px -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.6)}.crtot b{color:#ffd23f;font-weight:800;font-size:17px}
+.crhow{margin:0 6px 10px;font:400 14px/1.4 -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.6)}
+.crlist{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;gap:6px;padding:2px 2px 8px}
+.rv{display:grid;grid-template-columns:22px 60px 1fr auto;align-items:center;gap:10px;width:100%;text-align:start;border:0;border-radius:18px;padding:6px 12px 6px 8px;min-height:72px;background:rgba(255,255,255,.07);color:#fff;font-family:-apple-system,system-ui,sans-serif;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .2s}
+.rv:active{transform:scale(.97);background:rgba(255,255,255,.12)}
+.rv.cur{background:rgba(255,77,99,.16);box-shadow:inset 0 0 0 1.5px rgba(255,110,130,.65)}
+.rv.boss:not(.lock){background:linear-gradient(90deg,rgba(255,210,63,.14),rgba(255,255,255,.06))}
+.rv.lock{opacity:.42}
+.rvn{font:700 13px -apple-system,system-ui,sans-serif;color:rgba(235,235,245,.45);text-align:center}
+.rva{width:60px;height:60px;border-radius:16px;background:radial-gradient(circle at 50% 35%,#7f6dff,#3a269f)}
+.rv.lock .rva{filter:grayscale(1) brightness(.7)}
+.rvt b{display:block;font-size:16.5px;font-weight:700;letter-spacing:-.01em}.rvt small{display:block;font-size:12.5px;line-height:1.3;color:rgba(235,235,245,.6);margin:1px 0 5px}
+.rvd{display:flex;gap:3px}.rvd i{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,.14)}.rvd i.on{background:#ff4d63}
+.rvs{font-size:17px;letter-spacing:1px;white-space:nowrap}.rvs i,.crstars i{font-style:normal;color:rgba(255,255,255,.18)}.rvs i.on{color:#ffd23f}
+#crRes{text-align:center}
+.crstars.big{font-size:46px;letter-spacing:6px;line-height:1.1}.crstars.big i.on{display:inline-block;color:#ffd23f;text-shadow:0 0 18px rgba(255,210,63,.6);animation:starpop .55s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes starpop{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
+.crmsg{font:600 14.5px -apple-system,system-ui,sans-serif;color:#6a5fb0;margin:4px 0 8px}
+#crNext{background:linear-gradient(180deg,#ff6a7d,#e02a48);color:#fff;font:700 17px -apple-system,system-ui,sans-serif;border-radius:14px;box-shadow:0 4px 0 #a3142e;margin:4px 0 10px}
 </style>
 </head>
 <body>
@@ -604,10 +630,16 @@ body{-webkit-font-smoothing:antialiased}
   <p class="onst" id="onStatus" role="status"></p>
 </div></div>
 <div id="onres" class="ov dim hide"></div>
+<div id="career" class="ov dim hide"><div class="crsheet">
+  <div class="ohead"><h2 data-t="cr_title"></h2><span class="crtot" id="crStars"></span><button class="x" id="crClose" aria-label="close">✕</button></div>
+  <p class="crhow" data-t="cr_how"></p>
+  <div class="crlist" id="crList"></div>
+</div></div>
 <div id="duo" class="hide"></div>
 <div id="over" class="ov dim hide"><div class="sheet">
   <div class="win" id="winTxt"></div>
   <div class="score" id="scoreTxt" dir="ltr"></div>
+  <div id="crRes"></div>
   <div class="rew" id="rew"></div>
   <div id="lvBox"></div>
   <div class="newach" id="newAch"></div>
@@ -635,6 +667,7 @@ body{-webkit-font-smoothing:antialiased}
 <script src="menufx.js"></script>
 <script src="duo.js"></script>
 <script src="online.js"></script>
+<script src="career.js"></script>
 <script src="pwa.js"></script>
 </body>
 </html>

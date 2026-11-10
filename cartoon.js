@@ -58,11 +58,13 @@ function strokeAll(c,g,style,w){c.strokeStyle=style;c.lineWidth=w;c.lineJoin='ro
 
 function drawSleeve(c,L,sl,sw,len){
   const y0=0.95*L;
-  c.fillStyle='rgba(0,0,0,.18)';c.fillRect(-sw/2+0.05*L,y0+0.05*L,sw,len);
   const sg=c.createLinearGradient(-sw/2,0,sw/2,0);
   if(sl.pat==='gold'){sg.addColorStop(0,sl.dark);sg.addColorStop(.25,sl.main);sg.addColorStop(.45,sl.light);sg.addColorStop(.6,sl.main);sg.addColorStop(1,sl.dark);}
-  else{sg.addColorStop(0,sl.dark);sg.addColorStop(.3,sl.main);sg.addColorStop(.42,shade(sl.main,0.18));sg.addColorStop(.7,sl.main);sg.addColorStop(1,sl.dark);}
-  c.save();c.beginPath();c.rect(-sw/2,y0,sw,len);c.fillStyle=sg;c.fill();c.clip();
+  else{sg.addColorStop(0,sl.dark);sg.addColorStop(.2,sl.main);sg.addColorStop(.4,shade(sl.main,0.22));sg.addColorStop(.6,sl.main);sg.addColorStop(.82,shade(sl.main,-0.1));sg.addColorStop(1,sl.dark);}
+  // a forearm, not a plank: snug at the cuff, widening toward the elbow
+  const wAt=y=>{const d=(y-y0)/L;return sw*(0.93+0.07*Math.min(1,d/0.6)+0.028*d);};
+  const armPath=()=>{c.beginPath();const N=10;for(let i=0;i<=N;i++){const y=y0+len*i/N;c[i?'lineTo':'moveTo'](-wAt(y)/2,y);}for(let i=N;i>=0;i--){const y=y0+len*i/N;c.lineTo(wAt(y)/2,y);}c.closePath();};
+  c.save();armPath();c.clip();c.save();c.scale(wAt(y0+len)/sw,1);c.fillStyle=sg;c.fillRect(-sw/2,y0,sw,len);
   const r=seeded(7);
   if(sl.pat==='bands'){c.fillStyle='rgba(255,255,255,.18)';for(let i=0;i<8;i++)c.fillRect(-sw/2,1.25*L+i*0.32*L,sw,0.06*L);}
   else if(sl.pat==='diag'){c.strokeStyle='rgba(255,255,255,.45)';c.lineWidth=0.06*L;for(let i=-4;i<14;i++){c.beginPath();c.moveTo(-sw,y0+i*0.2*L);c.lineTo(sw,y0+i*0.2*L+sw*1.2);c.stroke();}}
@@ -73,10 +75,17 @@ function drawSleeve(c,L,sl,sw,len){
   else if(sl.pat==='gold'){c.fillStyle='rgba(255,255,255,.35)';for(let i=0;i<6;i++){c.beginPath();c.moveTo(-sw/2,y0+0.3*L+i*0.55*L);c.lineTo(sw/2,y0+0.1*L+i*0.55*L);c.lineTo(sw/2,y0+0.16*L+i*0.55*L);c.lineTo(-sw/2,y0+0.36*L+i*0.55*L);c.fill();}}
   else if(sl.pat==='galaxy'){[['rgba(255,80,200,.35)',-.1,1.5],['rgba(80,200,255,.3)',.12,2.4],['rgba(180,120,255,.35)',-.05,3.3]].forEach(([col,x,y])=>{const g=c.createRadialGradient(x*L,y*L,0,x*L,y*L,0.45*L);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(-sw/2,y0,sw,len);});
     c.fillStyle='#fff';for(let i=0;i<40;i++){const s=r()*0.018*L+0.004*L;c.globalAlpha=.5+r()*.5;c.beginPath();c.arc((r()-.5)*sw,y0+r()*Math.min(len,4.5*L),s,0,PI*2);c.fill();}c.globalAlpha=1;}
-  // glossy highlight stripe
-  c.fillStyle='rgba(255,255,255,.16)';c.fillRect(-sw*0.3,y0,sw*0.12,len);
   c.restore();
-  c.strokeStyle=OUT;c.lineWidth=0.035*L;c.strokeRect(-sw/2,y0,sw,len);
+  // cloth: soft folds that sag across the arm, a sheen along the lit side, darker where it meets the cuff
+  for(let i=0;i<6;i++){const fy=y0+(0.42+i*0.62+r()*0.2)*L;if(fy>y0+len)break;const d=(i%2?1:-1)*0.05*L;
+    const fg=c.createLinearGradient(0,fy-0.09*L,0,fy+0.11*L);fg.addColorStop(0,'rgba(0,0,30,0)');fg.addColorStop(.45,'rgba(0,0,30,.1)');fg.addColorStop(.55,'rgba(255,255,255,.09)');fg.addColorStop(1,'rgba(255,255,255,0)');
+    c.fillStyle=fg;c.beginPath();c.moveTo(-sw/2,fy-0.09*L+d);c.quadraticCurveTo(0,fy-0.03*L-d,sw/2,fy-0.09*L-d*.5);c.lineTo(sw/2,fy+0.11*L-d*.5);c.quadraticCurveTo(0,fy+0.17*L-d,-sw/2,fy+0.11*L+d);c.fill();}
+  const sh2=c.createLinearGradient(-sw*0.36,0,-sw*0.12,0);sh2.addColorStop(0,'rgba(255,255,255,0)');sh2.addColorStop(.5,'rgba(255,255,255,.17)');sh2.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=sh2;c.fillRect(-sw*0.36,y0,sw*0.24,len);
+  const cs=c.createLinearGradient(0,y0,0,y0+0.3*L);cs.addColorStop(0,'rgba(10,0,40,.24)');cs.addColorStop(1,'rgba(10,0,40,0)');c.fillStyle=cs;c.fillRect(-sw/2,y0,sw,0.3*L);
+  // roundness: the arm turns away from the light at both edges
+  {const we=wAt(y0+len),eg=c.createLinearGradient(-we/2,0,we/2,0);eg.addColorStop(0,'rgba(10,0,50,.34)');eg.addColorStop(.16,'rgba(10,0,50,.08)');eg.addColorStop(.3,'rgba(10,0,50,0)');eg.addColorStop(.66,'rgba(10,0,50,0)');eg.addColorStop(.86,'rgba(10,0,50,.14)');eg.addColorStop(1,'rgba(10,0,50,.4)');c.fillStyle=eg;c.fillRect(-we/2,y0,we,len);}
+  c.restore();
+  c.strokeStyle=OUT;c.lineWidth=0.035*L;c.lineJoin='round';armPath();c.stroke();
 }
 function drawHandShape(c,L,o){
   const look=o.look,sl=item(look.sleeve)||item('sl_blue'),sk=item(look.skin)||item('sk_1');
@@ -84,14 +93,18 @@ function drawHandShape(c,L,o){
   c.save();
   if(o.scale&&o.scale!==1){c.translate(0,0.6*L);c.scale(o.scale,o.scale);c.translate(0,-0.6*L);}
   if(o.shake){c.translate(0,1.2*L);c.rotate(o.shake);c.translate(0,-1.2*L);}
-  if(!o.noSleeve){c.save();c.scale(fs,1);drawSleeve(c,L,sl,sw,len);c.restore();}
+  if(!o.noSleeve){c.save();c.scale(fs,1);
+    if(!o.ghost&&!o.noShadow){const m=c.getTransform(),k=Math.hypot(m.a,m.b),h=o.onTop?0.07:0.035,BIG=6000;c.save();c.setTransform(m.a,m.b,m.c,m.d,m.e-BIG,m.f);c.shadowColor='rgba(12,4,46,.42)';c.shadowBlur=(0.035+h*.9)*L*k;c.shadowOffsetX=BIG+h*.55*L*k;c.shadowOffsetY=h*L*k;c.fillStyle='#000';c.fillRect(-sw/2,0.97*L,sw,len);c.restore();}
+    drawSleeve(c,L,sl,sw,len);c.restore();}
   c.save();const sq=o.squash||0,fl=o.flatten||0;c.translate(0,0.55*L);c.scale(fs*(1+0.1*sq+0.5*fl),1-0.08*sq-0.7*fl);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);
   const g=cartoonGeo(L,pose);
   // drop shadow
-  if(!o.ghost){c.save();const so=(o.onTop?0.09*L:0.045*L)*(1+(o.lift||0)*3);c.translate(so*.6*(palmUp?-1:1),so);c.globalAlpha=.22*(1-(o.lift||0)*.5);fillAll(c,g,'#120a36');strokeAll(c,g,'#120a36',0.06*L);c.restore();}
-  // white sticker rim + thick outline
-  if(!o.ghost)strokeAll(c,g,'rgba(255,255,255,.3)',0.11*L);
-  strokeAll(c,g,OUT,0.065*L);
+  // soft contact shadow: the light always comes from the top-left of the screen, whichever way the hand faces.
+  // (shape is drawn far off-canvas; only its blurred shadow lands under the hand)
+  if(!o.ghost&&!o.noShadow){const m=c.getTransform(),k=Math.hypot(m.a,m.b),lift=o.lift||0,h=(o.onTop?0.085:0.035)*(1+lift*3.2),BIG=6000;
+    c.save();c.setTransform(m.a,m.b,m.c,m.d,m.e-BIG,m.f);c.shadowColor=`rgba(12,4,46,${(o.onTop?.5:.42)*(1-lift*.35)})`;c.shadowBlur=(0.035+h*.9)*L*k;c.shadowOffsetX=BIG+h*.55*L*k;c.shadowOffsetY=h*L*k;
+    c.fillStyle='#000';c.fill(g.sil);c.restore();}
+  strokeAll(c,g,OUT,0.058*L);
   // base fill
   const gr=c.createLinearGradient(-0.4*L,0,0.35*L,L);gr.addColorStop(0,sk.c[0]);gr.addColorStop(.55,sk.c[1]);gr.addColorStop(1,sk.c[2]);fillAll(c,g,gr);
   // cel shading: inner shadow (bottom-right) + rim light (top-left)
@@ -101,13 +114,20 @@ function drawHandShape(c,L,o){
     const rim=c.createRadialGradient(0.02*L,0.6*L,0.25*L,0.02*L,0.6*L,0.62*L);rim.addColorStop(0,'rgba(120,40,40,0)');rim.addColorStop(1,sk.robot||sk.glove?'rgba(30,30,60,.16)':'rgba(130,45,40,.16)');c.fillStyle=rim;c.fillRect(-L,-L,2*L,2.5*L);
     const kl=c.createRadialGradient(-0.12*L,0.4*L,0,-0.12*L,0.4*L,0.6*L);kl.addColorStop(0,'rgba(255,250,240,.26)');kl.addColorStop(1,'rgba(255,250,240,0)');c.fillStyle=kl;c.fillRect(-L,-L,2*L,2.5*L);
     const bs=c.createLinearGradient(-0.1*L,0.45*L,0.35*L,1.0*L);bs.addColorStop(0,'rgba(60,20,50,0)');bs.addColorStop(1,'rgba(60,20,50,.16)');c.fillStyle=bs;c.fillRect(-L,-L,2*L,2.5*L);
+    { // edge bands follow the screen light, so mirror the offset when the hand itself is mirrored
+      const tm=c.getTransform(),mx=tm.a<0?-1:1,my=tm.d<0?-1:1;celShade(c,g,L,sk.robot?'rgba(255,255,255,.3)':'rgba(255,244,226,.34)',0.022*mx,0.026*my);celShade(c,g,L,sk.robot||sk.glove?'rgba(20,20,60,.22)':'rgba(96,28,62,.24)',-0.03*mx,-0.034*my);}
+    if(!palmUp&&!sk.glove&&!sk.robot&&!vic){g.xs.forEach((x,i)=>{const ky=(g.tips[i]+0.4)*L+0.02*L*Math.abs(i-1.5);
+      const kd=c.createRadialGradient(x*L+0.012*L,ky+0.03*L,0,x*L+0.012*L,ky+0.03*L,0.06*L);kd.addColorStop(0,'rgba(110,40,50,.1)');kd.addColorStop(1,'rgba(110,40,50,0)');c.fillStyle=kd;c.fillRect(x*L-0.1*L,ky-0.08*L,0.2*L,0.2*L);
+      const kh=c.createRadialGradient(x*L-0.012*L,ky-0.012*L,0,x*L-0.012*L,ky-0.012*L,0.04*L);kh.addColorStop(0,'rgba(255,246,232,.22)');kh.addColorStop(1,'rgba(255,246,232,0)');c.fillStyle=kh;c.fillRect(x*L-0.08*L,ky-0.08*L,0.16*L,0.16*L);});}
+    // the cuff throws a soft shadow onto the wrist
+    {const ws=c.createLinearGradient(0,0.74*L,0,0.92*L);ws.addColorStop(0,'rgba(60,18,58,0)');ws.addColorStop(1,'rgba(60,18,58,.3)');c.fillStyle=ws;c.fillRect(-L,0.74*L,2*L,0.2*L);}
     c.fillStyle='rgba(255,255,255,.2)';g.parts.forEach(pt=>{if(pt.thumb)return;const mx=(pt.x1+pt.x2)/2-0.028*L,my=pt.y1+(pt.y2-pt.y1)*0.38,ang=Math.atan2(pt.y2-pt.y1,pt.x2-pt.x1)-PI/2;c.beginPath();c.ellipse(mx,my,0.014*L,Math.abs(pt.y2-pt.y1)*0.3,ang,0,PI*2);c.fill();});}
   const red=o.red||0,bz=clamp(((o.bruise||0)-2)/2,0,1);if(red>0.01){const rc=`${Math.round(255-60*bz)},${Math.round(60-40*(o.flash||0))},${Math.round(70+50*bz)}`;const rg2=c.createRadialGradient(0,0.5*L,0.05*L,0,0.5*L,0.8*L);rg2.addColorStop(0,`rgba(${rc},${Math.min(.7,red*.9)})`);rg2.addColorStop(1,`rgba(${rc},${red*.2})`);c.fillStyle=rg2;c.fillRect(-L,-L,2*L,2.5*L);}
   const fx=o.fx||{};if(fx.char){c.fillStyle=`rgba(50,35,35,${fx.char*.75})`;c.fillRect(-L,-L,2*L,2.5*L);}
   // persistent slap marks (back of hand)
-  if(!palmUp&&o.marks&&o.marks.length){o.marks.filter(m=>m.kind==='tip').forEach(m=>{g.xs.forEach((fx,i)=>{const d=Math.abs(fx*L-m.x);if(d>0.16*L)return;const a=0.65*(1-d/(0.22*L));
+  if(o.marks&&o.marks.length){o.marks.filter(m=>m.kind==='tip').forEach(m=>{g.xs.forEach((fx,i)=>{const d=Math.abs(fx*L-m.x);if(d>0.16*L)return;const a=0.65*(1-d/(0.22*L));
       const ty=(g.tips[i]+0.1)*L,tg=c.createRadialGradient(fx*L,ty,0.01*L,fx*L,ty,0.075*L);tg.addColorStop(0,`rgba(255,140,150,${a*.5})`);tg.addColorStop(.6,`rgba(220,30,60,${a*.55})`);tg.addColorStop(1,'rgba(220,30,60,0)');c.fillStyle=tg;c.beginPath();c.ellipse(fx*L,ty,0.06*L,0.09*L,0,0,PI*2);c.fill();});});}
-  if(!palmUp&&o.marks&&o.marks.some(m=>m.kind!=='tip')){
+  if(o.marks&&o.marks.some(m=>m.kind!=='tip')){
     const pm=o.marks.filter(m=>m.kind!=='tip'),nM=pm.length,b=clamp((nM-2)/2,0,1);const col=a=>`rgba(${Math.round(lerp(230,185,b))},${Math.round(lerp(30,8,b))},${Math.round(lerp(50,32,b))},${a})`;const lite=a=>`rgba(${Math.round(lerp(245,215,b))},${Math.round(lerp(105,45,b))},${Math.round(lerp(115,60,b))},${a})`;
     o.marks.filter(m=>m.kind!=='tip').forEach((m,mi)=>{const sL=0.7*L*(m.s||1),im=imprint(m,sL,b,mi,col,lite);c.save();
       c.translate(m.x,(m.y||0.45*L)+0.32*L);c.rotate(PI+m.r);
@@ -158,7 +178,7 @@ function drawHandShape(c,L,o){
     if(rg.gem&&!palmUp){c.fillStyle=rg.gem;c.save();c.translate(x,y+0.022*L);c.rotate(PI/4);c.fillRect(-0.03*L,-0.03*L,0.06*L,0.06*L);c.strokeRect(-0.03*L,-0.03*L,0.06*L,0.06*L);c.restore();
       c.fillStyle='rgba(255,255,255,.85)';c.beginPath();c.arc(x-0.01*L,y+0.012*L,0.009*L,0,PI*2);c.fill();}}
   // glossy highlight
-  c.fillStyle='rgba(255,255,255,.16)';c.beginPath();c.ellipse(-0.13*L,0.55*L,0.05*L,0.1*L,-0.3,0,PI*2);c.fill();
+  
   const wt=item(look.watch);if(wt&&wt.band)drawWatch(c,L,wt,palmUp);
   if(fx.ice){c.save();c.clip(g.sil);c.fillStyle=`rgba(160,225,255,${fx.ice*.6})`;c.fillRect(-L,-L,2*L,2.5*L);c.strokeStyle=`rgba(255,255,255,${fx.ice*.85})`;c.lineWidth=0.012*L;const r=seeded(3);
     for(let i=0;i<10;i++){const x=(r()-.5)*0.6*L,y=r()*L,s=0.04*L;c.beginPath();for(let k=0;k<3;k++){const a=k*PI/3;c.moveTo(x-Math.cos(a)*s,y-Math.sin(a)*s);c.lineTo(x+Math.cos(a)*s,y+Math.sin(a)*s);}c.stroke();}

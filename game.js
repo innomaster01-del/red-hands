@@ -494,6 +494,9 @@ function drawHandW(p,k,palmUp,onTop){
     const jx=nerv?rand(-1,1)*0.012*L*nerv:0,jy=nerv?rand(-1,1)*0.008*L*nerv:0;
     const fu=(G.t-G.flipT)/420;let fs=1,pu=palmUp;if(fu>=0&&fu<1){fs=Math.max(.06,Math.abs(Math.cos(fu*PI)));if(fu<.5)pu=!pu;}
     const striking=G.phase==='slap'&&st&&p===G.att&&st.k===k;
+    // the slap turns the hand over: palm-up at rest -> palm-down on the way in, and back again once it returns
+    if(st&&p===G.att&&st.k===k&&palmUp){let tu=-1;if(G.phase==='slap')tu=clamp((G.t-st.t0)/(st.tp*0.62),0,1);else if(G.phase==='result'||G.phase==='flinch')tu=1-clamp((G.t-G.pt-140)/260,0,1);
+      if(tu>=0){fs*=Math.max(.08,Math.abs(Math.cos(tu*PI)));if(tu>=.5)pu=!pu;}}
     let lift=0;if(striking){const u=st.impacted?Math.max(0,1-(G.t-st.impT)/200):clamp((G.t-st.t0)/st.tp,0,1);lift=Math.sin(u*PI*0.5)*(st.impacted?u:1)*0.6;}
     // motion trail
     if(striking&&!st.impacted&&st.trail){
@@ -630,12 +633,12 @@ const colStyle=c=>({'#ffd23f':'gold','#9fe7ff':'ice','#3ee08f':'green','#7dffb0'
 const SIDE=[{main:'#3b7bff',light:'#9cc0ff',dark:'#1d3f9e',name:()=>t('blue')},{main:'#ff4d6d',light:'#ffa3b5',dark:'#9a1a37',name:()=>t('red')}];
 function drawAIBadge(){const pl=P[1],cin=G.cine||0;if(cin>=.4)return;ctx.save();ctx.globalAlpha=1-cin*2.5;
   hudCapsule(1,12,16+SAFE.t,G.att===1);
-  if(G.mode!=='tut'){const lbl=G.att===1?t('cpu_att'):t('cpu_def');rolePill(lbl,W-12,24+SAFE.t,G.att===1,SIDE[1]);}
+  if(G.mode!=='tut'){const lbl=G.rival?G.rival.name+(G.att===1?' ⚡':' 🛡️'):G.att===1?t('cpu_att'):t('cpu_def');rolePill(lbl,W-12,24+SAFE.t,G.att===1,SIDE[1]);}
   ctx.restore();}
 function drawBG(){
   drawArena(ctx,G.demo?PROF.equip.arena:PROF.equip.arena,W,H,G.t);
   if(!G.demo){const a=G.att;[0,1].forEach(p=>{const top=p===1;const gg=ctx.createLinearGradient(0,top?0:H,0,cy);gg.addColorStop(0,SIDE[p].main+(p===a?'44':'1a'));gg.addColorStop(1,SIDE[p].main+'00');ctx.fillStyle=gg;ctx.fillRect(0,top?0:cy,W,H/2);});}
-  ctx.save();ctx.setLineDash([10,12]);ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();ctx.restore();
+  {const lg=ctx.createLinearGradient(0,0,W,0);lg.addColorStop(0,'rgba(255,255,255,0)');lg.addColorStop(.18,'rgba(255,255,255,.42)');lg.addColorStop(.82,'rgba(255,255,255,.42)');lg.addColorStop(1,'rgba(255,255,255,0)');ctx.save();ctx.shadowColor='rgba(190,170,255,.9)';ctx.shadowBlur=10;ctx.fillStyle=lg;ctx.fillRect(0,cy-.75,W,1.5);ctx.restore();}
   if(G.phase==='armed'&&!G.demo&&G.mode!=='tut'){const f=1-(G.t-G.armedT)/8000,w=W*0.62*Math.max(0,f);ctx.fillStyle='rgba(0,0,0,.25)';ctx.fill(rrPath(cx-W*0.31,cy-4,W*0.62,8,4));ctx.fillStyle=f<.3?'#ffd23f':SIDE[G.att].main;ctx.fill(rrPath(cx-w/2,cy-4,w,8,4));}
   if(G.phase==='armed'&&!G.demo&&!P[def()].ai){const d=P[def()];
     inFrame(d.i,()=>d.hands.forEach((h,k)=>{const dist=Math.hypot(h.x,h.y-REST()),warn=clamp(dist/FLINCH(),0,1);
@@ -733,6 +736,7 @@ function render(){
   const a=G.att,d=1-a,s=G.strike;
   const attTop=(G.phase==='slap'&&s&&(s.impacted||(G.t-s.t0)/s.tp>.45))||(G.phase==='result'&&G.t-G.pt<200);
   const drawP=(p,palmUp,top)=>P[p].hands.forEach((h,k)=>drawHandW(p,k,palmUp,top));
+  // like the real game: the attacker waits palm-up underneath and turns the hand over as it slaps; the defender's hand is seen from above
   if(G.phase==='over'&&G.winPose){const w=G.winPose.w;drawP(1-w,w!==a,false);drawP(w,false,true);}
   else if(G.phase==='finish'||G.phase==='fatal'){drawP(a,true,false);drawP(d,false,true);}
   else if(attTop){drawP(d,false,false);drawP(a,true,true);}else{drawP(a,true,false);drawP(d,false,true);}

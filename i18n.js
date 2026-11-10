@@ -216,3 +216,8 @@ Object.assign(STR.he,{btn_online:'משחק אונליין',on_title:'אונלי�
  on_waiting:'מחכים שהחבר יצטרף…',on_connecting:'מתחבר…',on_searching:'מחפש יריב…',on_found:n=>`נמצא יריב: ${n}`,on_nobody:'אין אף אחד מחובר כרגע. אפשר לחכות או לשחק נגד המחשב.',
  on_busy:'כל השולחנות תפוסים. נסה שוב בעוד דקה.',on_nonet:'אין חיבור. בדוק את האינטרנט ונסה שוב.',on_badcode:'לקוד יש 4 אותיות.',on_nocode:'אין משחק עם הקוד הזה. בדקו את האותיות.',
  on_version:'לחבר יש גרסה אחרת. שניכם צריכים לעדכן.',on_lost:'החיבור נפל.',on_left:n=>`${n} יצא מהמשחק`,on_leave:'יציאה',on_wants:n=>`${n} רוצה עוד משחק`,on_wins:'ניצחונות',on_losses:'הפסדים',on_tonext:'נקודות לדרגה הבאה',on_invite:c=>`בוא נשחק Red Hands! משחק אונליין ← הצטרף עם קוד ← ${c}`});
+Object.assign(STR.en,{btn_ai:'Career',cr_title:'Career',cr_how:'Twelve rivals, each faster and smarter than the last. Beat one to unlock the next. Win without losing a heart for 3 stars.',
+ cr_locked:n=>`Beat ${n} first`,cr_lost:n=>`${n} wins this one. Try again — watch for the wind-up.`,cr_perfect:'Flawless — 3 stars',cr_good:'Solid win — 2 stars',cr_close:'Close one — 1 star',
+ cr_unlocked:n=>`New rival: ${n}`,cr_next:n=>`Next: ${n}`,cr_champion:'You beat the Red King. You are the champion.'});
+Object.assign(STR.he,{btn_ai:'קריירה',cr_title:'קריירה',cr_how:'12 יריבים, כל אחד מהיר וחכם מהקודם. מנצחים אחד ופותחים את הבא. ניצחון בלי לאבד לב נותן 3 כוכבים.',
+ cr_locked:n=>`קודם לנצח את ${n}`,cr_lost:n=>`${n} ניצח הפעם. נסה שוב.`,cr_perfect:'מושלם — 3 כוכבים',cr_good:'ניצחון יפה — 2 כוכבים',cr_close:'בקושי — כוכב אחד',cr_unlocked:n=>`יריב חדש: ${n}`,cr_next:n=>`הבא: ${n}`,cr_champion:'ניצחת את המלך האדום. אתה האלוף.'});
