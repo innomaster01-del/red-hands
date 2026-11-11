@@ -1,7 +1,7 @@
 // sw.js — Red Hands offline service worker (game shell, scripts, icons, announcer voice).
 // Bump VERSION on every deploy that changes files in PRECACHE; the page then offers "update" (never forced
 // mid-use, so a user never runs half-old/half-new code).
-const VERSION = 'v15';
+const VERSION = 'v16';
 const CACHE = `app-${VERSION}`;
 const PRECACHE = [
 "./",
@@ -21,7 +21,6 @@ const PRECACHE = [
 "./duo.js",
 "./online.js",
 "./career.js",
-"./music.js",
 "./pwa.js",
 "./icons/apple-touch-icon.png",
 "./icons/favicon-32.png",

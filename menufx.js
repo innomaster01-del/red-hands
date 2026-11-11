@@ -18,7 +18,7 @@ function countUp(){const el=document.getElementById('mCoins'),to=PROF.coins,t0=p
 // 3. specular light that follows the finger across glass buttons
 document.querySelectorAll('#menu .btn').forEach(b=>{
   const mv=e=>{const r=b.getBoundingClientRect();b.style.setProperty('--mx',(e.clientX-r.left)+'px');b.style.setProperty('--my',(e.clientY-r.top)+'px');};
-  b.addEventListener('pointermove',mv);b.addEventListener('pointerdown',e=>{mv(e);b.classList.add('mx-lit');try{buzz(8);}catch(_){}sound(()=>sfxTone([660],'sine',.04,.05));});
+  b.addEventListener('pointermove',mv);b.addEventListener('pointerdown',e=>{mv(e);b.classList.add('mx-lit');try{buzz(8);}catch(_){}});
   ['pointerup','pointerleave','pointercancel'].forEach(t=>b.addEventListener(t,()=>b.classList.remove('mx-lit')));});
 
 // 4. the card tilts a little toward your finger / the phone's tilt
@@ -35,10 +35,10 @@ function segPill(seg){let p=seg.querySelector('.mx-pill');if(!p){p=document.crea
   const on=seg.querySelector('button.on');if(!on){p.style.opacity=0;return;}p.style.opacity=1;p.style.width=on.offsetWidth+'px';p.style.transform=`translateX(${on.offsetLeft-2}px)`;}
 const sp=document.getElementById('speed');new MutationObserver(()=>segPill(sp)).observe(sp,{subtree:true,attributes:true,attributeFilter:['class']});
 addEventListener('resize',()=>segPill(sp));setTimeout(()=>segPill(sp),50);
-sp.addEventListener('click',()=>sound(()=>sfxTone([520,780],'sine',.05,.05,.04)));
+
 
 // 6. slap the logo
-logo.addEventListener('pointerdown',e=>{e.preventDefault();sound(()=>sfxHit(PROF.equip.sound,.7));try{buzz(25);}catch(_){}
+logo.addEventListener('pointerdown',e=>{e.preventDefault();try{buzz(25);}catch(_){}
   logo.classList.remove('mx-slap');void logo.offsetWidth;logo.classList.add('mx-slap');card.classList.remove('mx-shake');void card.offsetWidth;card.classList.add('mx-shake');
   const r=logo.getBoundingClientRect(),m=document.createElement('i');m.className='mx-mark';m.style.left=(e.clientX-r.left)+'px';m.style.top=(e.clientY-r.top)+'px';m.style.rotate=(Math.random()*40-20)+'deg';logo.appendChild(m);setTimeout(()=>m.remove(),1400);});
 
