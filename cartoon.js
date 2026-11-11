@@ -99,8 +99,11 @@ function drawHandShape(c,L,o){
   c.save();const sq=o.squash||0,fl=o.flatten||0;
   if(o.roll){c.translate(0,0.95*L);c.rotate(o.roll);c.translate(0,-0.95*L);}
   // turning over: you see the edge of the hand for a moment, so give it thickness instead of letting it vanish
-  if(fs<.97&&!o.ghost){const g0=cartoonGeo(L,pose),th=(1-fs)*0.075*L,dir=(o.roll||0)>=0?1:-1;c.save();c.translate(dir*th,0.012*L*(1-fs));c.translate(0,0.55*L);c.scale(fs,1);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);
-    strokeAll(c,g0,OUT,0.058*L);fillAll(c,g0,sk.c[2]);c.fillStyle='rgba(40,10,50,.28)';c.fill(g0.sil);c.restore();c.translate(-dir*th*.6,0);}
+  if(fs<.97&&!o.ghost){const g0=cartoonGeo(L,pose),th=Math.sqrt(1-fs*fs)*0.042*L,dir=(o.roll||0)>=0?1:-1,N=5;
+    const slab=(dx,fn)=>{c.save();c.translate(dx,0);c.translate(0,0.55*L);c.scale(fs,1);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);fn();c.restore();};
+    // the far side of the hand: one solid, shaded mass behind the face (single outline around the whole thing, no inner lines)
+    for(let i=1;i<=N;i++)slab(dir*th*i/N,()=>{c.strokeStyle=OUT;c.lineWidth=0.058*L;c.lineJoin='round';c.stroke(g0.sil);});
+    for(let i=N;i>=1;i--)slab(dir*th*i/N,()=>{c.fillStyle=sk.c[2];c.fill(g0.sil);c.fillStyle='rgba(70,24,44,.38)';c.fill(g0.sil);});}
   c.translate(0,0.55*L);c.scale(fs*(1+0.1*sq+0.5*fl),1-0.08*sq-0.7*fl);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);
   const g=cartoonGeo(L,pose);
   // drop shadow

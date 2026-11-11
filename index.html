@@ -483,6 +483,52 @@ body{-webkit-font-smoothing:antialiased}
 @keyframes starpop{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:none;opacity:1}}
 .crmsg{font:600 14.5px -apple-system,system-ui,sans-serif;color:#6a5fb0;margin:4px 0 8px}
 #crNext{background:linear-gradient(180deg,#ff6a7d,#e02a48);color:#fff;font:700 17px -apple-system,system-ui,sans-serif;border-radius:14px;box-shadow:0 4px 0 #a3142e;margin:4px 0 10px}
+body:has(#menu.hide) #iosSheet{display:none}
+
+/* ===== v17: every page speaks the same dark, calm language as the menu ===== */
+.ov.page:not(.home){background:#150c3d}
+.ov.page:not(.home) .sheet,#over .sheet{background:transparent;color:#fff}
+#over .sheet{background:rgba(22,14,58,.92);border:1px solid rgba(255,255,255,.12);border-radius:26px;-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px)}
+.ov.page:not(.home) .shead{background:rgba(21,12,61,.86);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08)}
+.ov.page:not(.home) .sheet h2{font:800 30px -apple-system,system-ui,sans-serif;letter-spacing:-.035em;color:#fff}
+.ov.page .x{background:rgba(255,255,255,.1);color:#fff}
+.ov.page .sec{color:#fff;font:700 20px -apple-system,system-ui,sans-serif;letter-spacing:-.02em}
+.ov.page .note,.ov.page .lbl{color:rgba(235,235,245,.6)!important;opacity:1!important}
+.ov.page .coinpill{background:rgba(255,255,255,.1);color:#fff}
+.ov.page:not(.home) .ach,.ov.page:not(.home) .tile,.ov.page:not(.home) .it,.ov.page:not(.home) .toggle,.ov.page:not(.home) .nextbox{background:rgba(255,255,255,.07);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.ov.page:not(.home) .ach b,.ov.page:not(.home) .it,.ov.page:not(.home) .tile .v{color:#fff}
+.ov.page:not(.home) .ach span,.ov.page:not(.home) .tile .k{color:rgba(235,235,245,.6);opacity:1}
+.ov.page:not(.home) .ach .ic{background:rgba(255,255,255,.08)}
+.ov.page:not(.home) .gl-ic{color:#fff;background:rgba(255,255,255,.08)!important}
+.ov.page:not(.home) .ach .cost{color:#7de3ff}
+.ov.page:not(.home) .ach.lock{filter:none;opacity:.5}
+.ov.page:not(.home) .tile.big{background:linear-gradient(180deg,#ff6a7d,#d91e3d);box-shadow:none}
+.ov.page:not(.home) .it.sel{box-shadow:inset 0 0 0 2px #ff6a7d}
+.ov.page:not(.home) .it .pr{color:#ffd23f}.ov.page:not(.home) .it .pr.own{color:#5be38f}.ov.page:not(.home) .it .pr.eq{background:#fff;color:#1c1440}
+.ov.page:not(.home) .tabs button{background:rgba(255,255,255,.07);color:rgba(235,235,245,.75);box-shadow:none}
+.ov.page:not(.home) .tabs button.on{background:#fff;color:#1c1440}
+.ov.page:not(.home) .seg{background:rgba(118,118,128,.24)}.ov.page:not(.home) .seg button{color:#fff}.ov.page:not(.home) .seg button.on{background:rgba(255,255,255,.92);color:#1c1440}
+.ov.page:not(.home) .toggle.on .sw{background:#34c759}.ov.page:not(.home) .toggle .sw{background:rgba(120,120,128,.32)}
+.ov.page:not(.home) .field span{color:rgba(235,235,245,.6)}
+.ov.page:not(.home) .field input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff}
+.ov.page:not(.home) .btn,#over .btn{border-radius:14px;font:600 17px -apple-system,system-ui,sans-serif;letter-spacing:-.01em;background:rgba(255,255,255,.1);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.ov.page:not(.home) .btn.by,.ov.page:not(.home) .btn.b1,#over #again{background:#fff;color:#1c1440;box-shadow:none}
+.ov.page:not(.home) .cb{color:#fff}
+.ov.page:not(.home) .buybar{background:linear-gradient(rgba(21,12,61,0),#150c3d 35%)}
+.ov.page:not(.home) .lbrow{border-bottom:1px solid rgba(255,255,255,.08)}
+.ov.page:not(.home) .danger{color:#ff8a9a}
+#pv{box-shadow:none;border:1px solid rgba(255,255,255,.1)}
+#over .win{font:800 clamp(34px,10vw,44px)/1.05 -apple-system,system-ui,sans-serif;letter-spacing:-.035em;background:linear-gradient(180deg,#ff8a9a,#ff4d63 45%,#d91e3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+#over .score{color:rgba(235,235,245,.75)}
+#over .rew div{background:rgba(255,255,255,.08);color:#fff}
+#over .crmsg,#over .note{color:rgba(235,235,245,.65)!important}
+#over .newach span{background:rgba(255,255,255,.1);color:#fff}
+#over .lvup{background:#ffd23f;color:#1c1440}
+#over #crNext{background:linear-gradient(180deg,#ff6a7d,#e02a48);color:#fff;box-shadow:none}
+#tabbar{background:rgba(21,12,61,.9);border-top:1px solid rgba(255,255,255,.08)}
+#tabbar button{color:rgba(235,235,245,.45)}#tabbar button.on{color:#fff}
+#annSeg button[data-a="he"]{display:none}
+.tut{background:rgba(22,14,58,.88);color:#fff;border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}.tut .st{color:rgba(235,235,245,.6)}.tut h3{color:#fff}.tut p{color:rgba(235,235,245,.85)}.tut button{color:rgba(235,235,245,.6)}.tut .dots i{background:rgba(255,255,255,.18)}.tut .dots i.on{background:#ff4d63}
 </style>
 </head>
 <body>
@@ -576,13 +622,11 @@ body{-webkit-font-smoothing:antialiased}
 <div id="settings" class="ov page hide"><div class="sheet">
   <div class="shead"><h2 data-t="set_title"></h2><button class="x" data-close>✕</button></div>
   <label class="field"><span data-t="set_name"></span><input id="nameIn" maxlength="16" autocomplete="off"></label>
-  <div class="lbl" style="color:#2a1d6e;opacity:.8" data-t="set_lang"></div>
+  <div class="lbl" data-t="set_lang"></div>
   <div class="seg" id="langSeg"><button data-l="he">עברית</button><button data-l="en">English</button></div>
   <button class="toggle" id="sndTog"><span data-t="set_sound"></span><span class="sw"></span></button>
-  <div class="lbl" style="color:#2a1d6e;opacity:.8" data-t="set_swipe"></div>
-  <div class="seg" id="swipeSeg"><button data-s="low"></button><button data-s="normal"></button><button data-s="high"></button></div>
-  <p class="note" style="margin-top:2px" data-t="set_swipe_d"></p>
-  <div class="lbl" style="color:#2a1d6e;opacity:.8" data-t="ann_mode"></div>
+  <div id="swipeSeg" hidden></div>
+  <div class="lbl" data-t="ann_mode"></div>
   <div class="seg" id="annSeg"><button data-a="off"></button><button data-a="fx"></button><button data-a="he"></button><button data-a="en"></button></div>
   <p class="note" style="margin-top:2px" data-t="ann_d"></p>
   <button class="toggle" id="vibTog"><span data-t="set_vibe"></span><span class="sw"></span></button>

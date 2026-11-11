@@ -364,10 +364,10 @@ cv.addEventListener('pointermove',e=>{
   const [x,y]=toLocal(pl.i,e.clientX,e.clientY),now=performance.now();h.fx=x;h.fy=y;if(h.draw&&h.path){const lp=h.path[h.path.length-1];if(Math.hypot(x-lp[0],y-lp[1])>2.5)h.path.push([x,y]);}
   if(pl.i===G.att&&G.phase==='armed'&&!h.draw){
     const fwd=h.sy-y,dx=x-h.sx,dt=Math.max(1,now-h.lft),vy=(h.lfy-y)/dt,vx=(x-h.lfx)/dt;
-    h.feint=clamp(fwd*0.6,0,0.22*L);h.aimx=clamp(dx*0.6,-0.32*L,0.32*L);
+    h.feint=clamp((fwd-14)*0.6,0,0.22*L);h.aimx=Math.abs(dx)<14?0:clamp((dx-Math.sign(dx)*14)*0.6,-0.32*L,0.32*L);
     const diagOk=hasUnlock('diag')&&G.mode!=='tut';
     if(diagOk&&Math.abs(dx)>0.3*L&&Math.abs(vx)>0.9&&Math.abs(dx)>fwd*0.8){pl.swipeK=clamp(1.42-0.26*Math.abs(vx),0.7,1.32);h.aimx=clamp(dx*0.3,-0.25*L,0.25*L);startStrike(h.k,'diag',false,Math.sign(dx));}
-    else if(fwd>0.5*L||(vy>1.1&&fwd>22)){pl.swipeK=clamp(1.42-0.26*Math.max(vy,fwd/Math.max(60,now-h.t0)),0.7,1.32);attackWith(pl,h.k,pl.dbl?'double':'normal');}
+    else if(fwd>0.5*L||(vy>1.1&&fwd>Math.max(26,0.17*L)&&now-h.t0>35)){pl.swipeK=clamp(1.42-0.26*Math.max(vy,fwd/Math.max(60,now-h.t0)),0.7,1.32);attackWith(pl,h.k,pl.dbl?'double':'normal');}
   }
   h.lfx=x;h.lfy=y;h.lft=now;
 });

@@ -45,7 +45,8 @@ const _sg=startGame;window.startGame=startGame=function(mode,opts){
   _sg(mode,opts);if(G.rival&&mode==='ai'){P[1].look=G.rival.look;G.names=[PROF.name||t('you'),G.rival.name];}};
 const _og=onGameOver;window.onGameOver=onGameOver=function(w){_og(w);const box=$c('crRes');box.innerHTML='';
   if(G.mode!=='ai'||G.career==null)return;const i=G.career,r=RIVALS[i],won=w===0;
-  if(!won){box.innerHTML=`<div class="crmsg">${t('cr_lost',r.name)}</div>`;return;}
+  if(!won){$c('winTxt').textContent=t('go_2p',r.name);box.innerHTML=`<div class="crmsg">${t('cr_lost',r.name)}</div>`;return;}
+  if(r.boss){PROF.stats.hardWins=(PROF.stats.hardWins||0)+1;try{unlockAch('boss');}catch(e){}}
   const stars=P[0].hp>=5?3:P[0].hp>=3?2:1,c=CR(),prev=c.stars[r.id]||0,first=!prev;
   if(stars>prev)c.stars[r.id]=stars;let bonus=0;if(first){bonus=reward(i);PROF.coins+=bonus;}saveProfile();
   const nx=RIVALS[i+1];
