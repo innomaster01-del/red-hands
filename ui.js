@@ -9,7 +9,7 @@ function only(id){SCREENS.forEach(s=>s===id?show(s):hide(s));const tb=$('tabbar'
 let newAch=[];
 
 function applyLang(){
-  LANG=PROF.lang||'he';document.documentElement.lang=LANG;document.documentElement.dir=LANG==='he'?'rtl':'ltr';
+  LANG='en';PROF.lang='en';document.documentElement.lang=LANG;document.documentElement.dir=LANG==='he'?'rtl':'ltr';
   document.title=t('title');
   document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
   $('logo').innerHTML=t('logo_html');
@@ -255,7 +255,7 @@ function renderStats(){const s=PROF.stats,li=levelInfo(PROF.xp);
   $('achs').innerHTML=ACH.map(a=>`<div class="ach ${PROF.ach[a.id]?'':'lock'}"><div class="ic">${a.ic}</div><div><b>${t('ach_'+a.id)}</b><span>${t('achd_'+a.id)}</span></div></div>`).join('');
 }
 // ---------- moves ----------
-const MOVES=[{id:'tap',ic:'👋'},{id:'feint',ic:'🎭'},{id:'dodge',ic:'🛡️'},{id:'diag',ic:'↗️',unl:'diag'},{id:'two',ic:'✋✋',unl:'twohands'}];
+const MOVES=[{id:'tap',ic:'👋'},{id:'feint',ic:'🎭'},{id:'dodge',ic:'🛡️'},{id:'diag',ic:'↗️',unl:'diag'}];
 function renderMoves(){const li=levelInfo(PROF.xp),achN=Object.keys(PROF.ach).length;
   const nxt=UNLOCKS.find(u=>!hasUnlock(u.key));
   if(nxt){const need=xpToLevel(nxt.lvl),prev=xpToLevel(li.lvl);const left=Math.max(0,need-PROF.xp);const lvlOk=li.lvl>=nxt.lvl;

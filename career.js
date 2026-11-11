@@ -70,6 +70,7 @@ function openCareer(){initAudio();renderCareer();show('career');}
 function fight(i){const r=RIVALS[i];G.career=i;G.rival=r;SPEEDS.career=r.ai;AI_LOOKS.career=r.look;G.speed='career';hide('career');G.namesReal=[!!PROF.name,false];launch('ai');}
 // every start: dress the rival; leaving career restores the normal speed
 const _sg=startGame;window.startGame=startGame=function(mode,opts){
+  G.twoHands=false;if(opts)opts.twoHands=false;PROF.twoHands=false;
   if(mode==='ai'&&G.career!=null){const r=RIVALS[G.career];G.rival=r;SPEEDS.career=r.ai;AI_LOOKS.career=r.look;G.speed='career';}
   else if(!(mode==='ai')){if(G.speed==='career')G.speed=PROF.speed||'normal';G.career=null;G.rival=null;}
   _sg(mode,opts);hush();if(G.rival&&mode==='ai'){P[1].look=G.rival.look;G.names=[PROF.name||t('you'),G.rival.name];hp0=[5,5];G.sigT=G.t;const r=G.rival;setTimeout(()=>{if(G.rival===r&&G.mode==='ai'&&!G.demo)say(r.q.intro,2300);},500);}};
