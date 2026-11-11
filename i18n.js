@@ -231,3 +231,5 @@ Object.assign(STR.en,{hint_att3:'Swipe forward to slap — faster swipe, faster 
 Object.assign(STR.he,{hint_att3:'החלק קדימה כדי לתת מכה — ככל שמהר יותר, המכה מהירה יותר',hint_sp:'לחיצה כפולה ואז לצייר צורה = מכה מיוחדת',train_how_sp:'לחיצה כפולה, צייר, שחרר'});
 Object.assign(STR.en,{mvd_tap:'Put a finger on your hand and flick it forward. Faster swipe, faster slap.',mvd_two:'Each player has two hands — swipe with either one',st_boss:'Boss wins',card_lose:'I got slapped 😂',card_win:'I won! 🏆',mv_title:'Moves',go_cpu:'You lose'});
 Object.assign(STR.en,{boss_item:n=>`Beat ${n}`,cr_prize:n=>`Boss prize unlocked: ${n} — wear it from the Shop`});
+Object.assign(STR.en,{set_sound:'All sound',set_sfx:'Sound effects',set_voice:'Announcer voice',set_music:'Menu music',set_vibe:'Vibration'});
+Object.assign(STR.en,{on_recent:'Recent matches'});

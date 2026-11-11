@@ -282,7 +282,9 @@ function renderLB(){let rows=Object.values(PROF.hof);
   $('lbList').querySelectorAll('.n').forEach((el,i)=>el.textContent=rows[i].name);
 }
 // ---------- settings ----------
-function openSettings(){document.querySelectorAll('#swipeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.s===(PROF.swipe||'normal')));document.querySelectorAll('#annSeg button').forEach(b=>b.classList.toggle('on',b.dataset.a===annMode()));$('nameIn').value=PROF.name||'';$('nameIn').placeholder=t('set_name_ph');$('sndTog').classList.toggle('on',!G.muted);$('vibTog').classList.toggle('on',PROF.vibe);}
+function openSettings(){document.querySelectorAll('#swipeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.s===(PROF.swipe||'normal')));document.querySelectorAll('#annSeg button').forEach(b=>b.classList.toggle('on',b.dataset.a===annMode()));$('nameIn').value=PROF.name||'';$('nameIn').placeholder=t('set_name_ph');$('sndTog').classList.toggle('on',!G.muted);$('vibTog').classList.toggle('on',PROF.vibe);
+  [['sfxTog','sfx'],['voiceTog','voice'],['musTog','music']].forEach(([id,k])=>{$(id).classList.toggle('on',PROF[k]!==false);$(id).classList.toggle('off-all',!!G.muted);});}
+[['sfxTog','sfx'],['voiceTog','voice'],['musTog','music']].forEach(([id,k])=>{$(id).onclick=()=>{PROF[k]=PROF[k]===false;saveProfile();openSettings();initAudio();if(PROF[k]){const d=G.demo;G.demo=false;if(k==='sfx')sfxHit(PROF.equip.sound,.8);else if(k==='voice')playVO('fight');G.demo=d;}};});
 $('nameIn').oninput=()=>{PROF.name=$('nameIn').value.trim().slice(0,16);saveProfile();refreshMenu();};
 $('langSeg').onclick=e=>{const b=e.target.closest('button');if(!b)return;PROF.lang=b.dataset.l;saveProfile();applyLang();openSettings();};
 $('sndTog').onclick=()=>{G.muted=!G.muted;PROF.muted=G.muted;saveProfile();openSettings();refreshMenu();};
@@ -292,6 +294,7 @@ $('vibTog').onclick=()=>{PROF.vibe=!PROF.vibe;saveProfile();openSettings();};
 let resetArm=0;$('resetBtn').onclick=()=>{if(Date.now()-resetArm<3000){PROF=freshProfile();PROF.tutorialDone=true;saveProfile();G.speed='normal';G.muted=false;applyLang();openSettings();toast('🧹',t('reset_done'));resetArm=0;$('resetBtn').textContent=t('set_reset');}else{resetArm=Date.now();$('resetBtn').textContent=t('set_reset_confirm');}};
 
 // ---------- boot ----------
+PROF.annMode='en';PROF.announcer=true;
 if(!PROF.enMig){PROF.enMig=1;PROF.lang='en';PROF.annMode='en';saveProfile();}
 G.speed=PROF.speed||'normal';G.muted=!!PROF.muted;
 applyLang();startDemo();requestAnimationFrame(loop);

@@ -10,6 +10,7 @@ window.ON=ON;
 function OR(){if(!PROF.online)PROF.online={r:1000,w:0,l:0,games:0,best:1000,streak:0};return PROF.online;}
 const RANKS=[[0,'Rookie','#b9b3d9'],[900,'Bronze','#d89a63'],[1080,'Silver','#d7dbe6'],[1220,'Gold','#ffd23f'],[1380,'Platinum','#7de3ff'],[1550,'Diamond','#b98cff'],[1750,'Legend','#ff4d63']];
 const rankOf=r=>{let x=RANKS[0];RANKS.forEach(k=>{if(r>=k[0])x=k;});return{name:x[1],col:x[2],next:(RANKS[RANKS.indexOf(x)+1]||[null])[0]};};
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
 const elo=(me,op,won)=>Math.round(32*((won?1:0)-1/(1+Math.pow(10,(op-me)/400))));
 
 // ---------- transport: PeerJS (WebRTC) in the app, BroadcastChannel for local tests ----------
@@ -34,7 +35,7 @@ function FakePeer(id){const me=id||('anon-'+Math.random().toString(36).slice(2,8
   return self;}
 const mkPeer=id=>TEST?FakePeer(id):new window.Peer(id,{debug:0});
 
-function teardown(){try{ON.conn&&ON.conn.close();}catch(e){}try{ON.peer&&ON.peer.destroy();}catch(e){}ON.conn=null;ON.peer=null;ON.open=false;clearInterval(ON.hb);clearInterval(ON.snapT);}
+function teardown(){const c=ON.conn,p=ON.peer;ON.conn=null;ON.peer=null;ON.open=false;try{c&&c.close();}catch(e){}try{p&&p.destroy();}catch(e){}clearInterval(ON.hb);clearInterval(ON.snapT);}
 function useConn(c){ON.conn=c;c.on('open',()=>{ON.open=true;ON.lastRx=performance.now();send({k:'hello',v:VER,name:PROF.name||t('you'),r:OR().r,W,H});startHeartbeat();});
   c.on('data',d=>{ON.lastRx=performance.now();try{onMsg(typeof d==='string'?JSON.parse(d):d);}catch(e){console.warn(e);}});
   c.on('close',()=>lost());c.on('error',()=>{});}
@@ -73,6 +74,7 @@ function onMsg(m){
     if(ON.role==='host')setTimeout(()=>{hostStart();send({k:'start',W,H,names:G.names});},700);return;}
   if(ON.role==='guest'){if(m.k==='start')guestStart(m);else if(m.k==='s')applySnap(m.s);else if(m.k==='ev')guestEvent(m);else if(m.k==='over')showResult(m.w===1,m);else if(m.k==='rm')rematchState(m.rm);}
   else{if(m.k==='in')hostInput(m);else if(m.k==='rm'){ON.rematch[1]=!!m.on;rematchState(ON.rematch);maybeRematch();}}
+  if(m.k==='em')showEmote(m.e,false);
   if(m.k==='bye')lost(true);}
 
 // ---------- host ----------
@@ -141,9 +143,10 @@ const _loop=loop;window.loop=loop=function(now){if(!G.netGuest)return _loop(now)
 
 // ---------- result, rematch, disconnects ----------
 function showResult(won,m){if(!ON.inGame&&!m)return;const o=OR(),before=o.r,d=elo(before,ON.opp?ON.opp.r:1000,won);o.r=Math.max(100,o.r+d);o.games++;if(won){o.w++;o.streak++;}else{o.l++;o.streak=0;}o.best=Math.max(o.best,o.r);
+  (o.hist=o.hist||[]).unshift({n:ON.opp?ON.opp.name:'Player',r:ON.opp?ON.opp.r:1000,won:!!won,d,t:Date.now()});o.hist=o.hist.slice(0,12);
   PROF.coins+=won?50:15;PROF.xp+=won?100:45;saveProfile();
   const rk=rankOf(o.r),sc=m&&m.sc?(G.netGuest?`${m.sc[1]} : ${m.sc[0]}`:`${m.sc[0]} : ${m.sc[1]}`):'';
-  const el=$o('onres');el.innerHTML=`<div class="orw ${won?'won':''}">${won?t('duo_win'):t('duo_lose')}</div><div class="ors">${sc}</div>
+  const el=$o('onres');el.innerHTML=`<div class="orw ${won?'won':''}">${won?t('duo_win'):t('duo_lose')}</div><div class="ors">${sc}</div>${ON.opp?`<div class="orvs">vs ${esc(ON.opp.name)} <span class="orb" style="--rc:${rankOf(ON.opp.r).col}">${rankOf(ON.opp.r).name} ${ON.opp.r}</span></div>`:''}
     <div class="orr"><span class="orb" style="--rc:${rk.col}">${rk.name}</span><b id="orNum">${before}</b><i class="${d>=0?'up':'dn'}">${d>=0?'+':''}${d}</i></div>
     <div class="orc">+${won?50:15} 🪙 · +${won?100:45} XP</div>
     <button class="btn" id="orAgain">${t('duo_rematch')}</button><button class="btn" id="orLeave">${t('on_leave')}</button><p class="orst" id="orSt"></p>`;
@@ -156,16 +159,23 @@ function rematchState(rm){ON.rematch=rm;const me=G.netGuest?1:0,b=$o('orAgain');
   b.textContent=rm[me]?(rm[1-me]?t('duo_go'):t('duo_wait',ON.opp?ON.opp.name:'')):t('duo_rematch');$o('orSt').textContent=rm[1-me]&&!rm[me]?t('on_wants',ON.opp?ON.opp.name:''):'';}
 function maybeRematch(){if(G.netGuest)return;send({k:'rm',rm:ON.rematch});if(ON.rematch[0]&&ON.rematch[1]){hide('onres');setTimeout(()=>{hostStart();send({k:'start',W,H,names:G.names});},300);}}
 function leave(){send({k:'bye'});endOnline();}
-function endOnline(){teardown();ON.inGame=false;G.online=false;const wasGuest=G.netGuest;G.netGuest=false;G.paused=false;P.forEach(p=>p.remote=false);
+function endOnline(){ON.inGame=false;teardown();G.online=false;const wasGuest=G.netGuest;G.netGuest=false;G.paused=false;P.forEach(p=>p.remote=false);
   if(wasGuest)guestRestore();hide('onres');hide('online');toMenu();}
-function lost(){const wasOpen=ON.open;teardown();if(!ON.inGame){if(wasOpen||ON.role)status(t('on_lost'));return;}
+function lost(){if(!ON.conn&&!ON.peer)return;const wasOpen=ON.open;teardown();if(!ON.inGame){if(wasOpen||ON.role)status(t('on_lost'));return;}
   toast('📡',t('on_left',ON.opp?ON.opp.name:''));const resShown=!$o('onres').classList.contains('hide');
   if(!resShown&&G.phase!=='idle')showResult(true,{sc:null});const b=$o('orAgain');if(b)b.style.display='none';const st=$o('orSt');if(st)st.textContent=t('on_left',ON.opp?ON.opp.name:'');}
-const _tm=toMenu;window.toMenu=toMenu=function(){if(G.online){send({k:'bye'});teardown();ON.inGame=false;G.online=false;if(G.netGuest){G.netGuest=false;G.paused=false;guestRestore();}P.forEach(p=>p.remote=false);}hide('onres');_tm();};
+const _tm=toMenu;window.toMenu=toMenu=function(){if(G.online){send({k:'bye'});ON.inGame=false;teardown();G.online=false;if(G.netGuest){G.netGuest=false;G.paused=false;guestRestore();}P.forEach(p=>p.remote=false);}hide('onres');_tm();};
+
+// ---------- emotes: four quick reactions, shown big on the other side ----------
+const EMO=['👋','😂','😮','🔥'];let emoT=0;
+function emoBar(on){const b=$o('onEmo');b.classList.toggle('hide',!on);if(on&&!b.childElementCount){b.innerHTML=EMO.map(e=>`<button>${e}</button>`).join('');b.querySelectorAll('button').forEach(x=>x.onclick=()=>{if(performance.now()-emoT<900)return;emoT=performance.now();send({k:'em',e:x.textContent});showEmote(x.textContent,true);try{buzz(10);}catch(_){}});}}
+function showEmote(e,mine){if(!EMO.includes(e))return;const el=document.createElement('div');el.className='onpop '+(mine?'mine':'theirs');el.textContent=e;document.body.appendChild(el);setTimeout(()=>el.remove(),1700);if(!mine){try{sfxTone([660,880],'sine',.06,.08,.05);}catch(_){}}}
+setInterval(()=>emoBar(!!(ON.inGame&&ON.open&&G.online&&$o('onres').classList.contains('hide')&&G.phase!=='fatal'&&G.phase!=='over')),300);
 
 // ---------- UI wiring ----------
 function openOnline(){initAudio();const o=OR(),rk=rankOf(o.r);
   $o('onRank').innerHTML=`<span class="orb" style="--rc:${rk.col}">${rk.name}</span><b>${o.r}</b><small>${o.w} ${t('on_wins')} · ${o.l} ${t('on_losses')}</small>`+(rk.next?`<div class="onbar"><i style="width:${Math.round(clamp((o.r-RANKS.find(k=>k[1]===rk.name)[0])/(rk.next-RANKS.find(k=>k[1]===rk.name)[0]),0,1)*100)}%"></i></div><small class="onnext">${rk.next-o.r} ${t('on_tonext')}</small>`:'');
+  const h=(o.hist||[]).slice(0,5);$o('onHist').innerHTML=h.length?`<div class="onhh">${t('on_recent')}</div>`+h.map(x=>`<div class="onh"><i class="${x.won?'w':'l'}">${x.won?'W':'L'}</i><span>${esc(x.n)}</span><b class="${x.d>=0?'up':'dn'}">${x.d>=0?'+':''}${x.d}</b></div>`).join(''):'';
   lobbyView('onHome');status('');show('online');}
 $o('bon').disabled=false;$o('bon').onclick=openOnline;
 $o('onQuick').onclick=quick;$o('onHost').onclick=hostRoom;$o('onJoinBtn').onclick=()=>{lobbyView('onJoin');status('');setTimeout(()=>$o('onCodeIn').focus(),50);};

@@ -14,7 +14,7 @@ function schedule(){if(!AC||!on)return;while(nextT<AC.currentTime+0.35){const ba
     const loop=((step/32)|0)%2,ti=((step/8)|0)%4;if(loop===1)TOP.slice(ti*4,ti*4+4).forEach(n=>{if(n&&n[1]===i)pluck(t,N(n[0]),0.1,0.7,'sine');});
     if(i%2===1&&typeof noiseBuf!=='undefined'&&noiseBuf)tick(t,noiseBuf);
     nextT+=S8*(i%2?0.94:1.06);step++;}}   // a touch of swing
-function want(){return !!(window.AC||typeof AC!=='undefined'&&AC)&&G.demo&&!G.muted&&!document.hidden&&G.mode==='demo';}
+function want(){return !!(window.AC||typeof AC!=='undefined'&&AC)&&G.demo&&!G.muted&&PROF.music!==false&&!document.hidden&&G.mode==='demo';}
 function sync(){if(typeof AC==='undefined'||!AC)return;
   if(!master){master=AC.createGain();master.gain.value=0;lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2400;lp.Q.value=.4;lp.connect(master);master.connect(AC.destination);}
   const w=want();if(w&&!on){on=true;nextT=AC.currentTime+0.08;step=0;master.gain.cancelScheduledValues(AC.currentTime);master.gain.setTargetAtTime(0.07,AC.currentTime,0.6);}
