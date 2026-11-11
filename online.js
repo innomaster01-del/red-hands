@@ -75,6 +75,7 @@ function onMsg(m){
   if(ON.role==='guest'){if(m.k==='start')guestStart(m);else if(m.k==='s')applySnap(m.s);else if(m.k==='ev')guestEvent(m);else if(m.k==='over')showResult(m.w===1,m);else if(m.k==='rm')rematchState(m.rm);}
   else{if(m.k==='in')hostInput(m);else if(m.k==='rm'){ON.rematch[1]=!!m.on;rematchState(ON.rematch);maybeRematch();}}
   if(m.k==='em')showEmote(m.e,false);
+  if(m.k==='ch')showChat(m.i,false);
   if(m.k==='bye')lost(true);}
 
 // ---------- host ----------
@@ -170,6 +171,12 @@ const _tm=toMenu;window.toMenu=toMenu=function(){if(G.online){send({k:'bye'});ON
 const EMO=['👋','😂','😮','🔥'];let emoT=0;
 function emoBar(on){const b=$o('onEmo');b.classList.toggle('hide',!on);if(on&&!b.childElementCount){b.innerHTML=EMO.map(e=>`<button>${e}</button>`).join('');b.querySelectorAll('button').forEach(x=>x.onclick=()=>{if(performance.now()-emoT<900)return;emoT=performance.now();send({k:'em',e:x.textContent});showEmote(x.textContent,true);try{buzz(10);}catch(_){}});}}
 function showEmote(e,mine){if(!EMO.includes(e))return;const el=document.createElement('div');el.className='onpop '+(mine?'mine':'theirs');el.textContent=e;document.body.appendChild(el);setTimeout(()=>el.remove(),1700);if(!mine){try{sfxTone([660,880],'sine',.06,.08,.05);}catch(_){}}}
+// quick chat: fixed, friendly phrases (no free typing, so nothing rude can be sent)
+const CHAT=['Good luck!','Nice one!','Ouch!','Too slow 😎','Wow!','So close!','Good game','Rematch?'];let chT=0;
+function showChat(i,mine){const txt=CHAT[i];if(!txt)return;document.querySelectorAll('.onsay.'+(mine?'mine':'theirs')).forEach(e=>e.remove());const el=document.createElement('div');el.className='onsay '+(mine?'mine':'theirs');
+  el.innerHTML=`<b>${esc(mine?(PROF.name||'You'):(ON.opp?ON.opp.name:''))}</b>${esc(txt)}`;document.body.appendChild(el);setTimeout(()=>el.remove(),2600);if(!mine){try{sfxTone([587,784],'sine',.06,.08,.06);buzz(10);}catch(_){}}}
+$o('onChatBtn').onclick=()=>{const c=$o('onChat');if(!c.childElementCount){c.innerHTML=CHAT.map((x,i)=>`<button data-i="${i}">${x}</button>`).join('');c.querySelectorAll('button').forEach(b=>b.onclick=()=>{c.classList.add('hide');if(performance.now()-chT<1200)return;chT=performance.now();send({k:'ch',i:+b.dataset.i});showChat(+b.dataset.i,true);});}c.classList.toggle('hide');};
+setInterval(()=>{const on=!!(ON.inGame&&ON.open&&G.online&&G.phase!=='fatal');$o('onChatBtn').classList.toggle('hide',!on);if(!on)$o('onChat').classList.add('hide');},300);
 setInterval(()=>emoBar(!!(ON.inGame&&ON.open&&G.online&&$o('onres').classList.contains('hide')&&G.phase!=='fatal'&&G.phase!=='over')),300);
 
 // ---------- UI wiring ----------

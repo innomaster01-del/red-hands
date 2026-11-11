@@ -553,6 +553,22 @@ body:has(#menu.hide) #iosSheet{display:none}
 .onpop{position:fixed;z-index:6;left:50%;font-size:64px;pointer-events:none;transform:translateX(-50%);animation:emopop 1.7s cubic-bezier(.2,.9,.3,1) forwards;filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
 .onpop.theirs{top:22%}.onpop.mine{bottom:24%;font-size:44px;opacity:.85}
 @keyframes emopop{0%{opacity:0;transform:translateX(-50%) scale(.3)}15%{opacity:1;transform:translateX(-50%) scale(1.15)}30%{transform:translateX(-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-24px) scale(1)}}
+#rvSay{left:auto;right:12px;top:calc(env(safe-area-inset-top) + 62px);transform:none;max-width:56%;padding:7px 12px 8px;border-radius:14px 4px 14px 14px;font-size:14px;background:rgba(22,14,58,.6)}
+#rvSay b{font-size:11px}
+@keyframes saypop{from{opacity:0;transform:translateY(-6px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes sayout{to{opacity:0;transform:translateY(-4px)}}
+#rvSay{transform-origin:100% 0}
+/* online quick chat */
+#onChatBtn{position:fixed;z-index:5;left:10px;bottom:calc(env(safe-area-inset-bottom) + 286px);width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(22,14,58,.5);color:#fff;font-size:17px;padding:0}
+#onChatBtn.hide,#onChat.hide{display:none}
+#onChat{position:fixed;z-index:6;left:58px;bottom:calc(env(safe-area-inset-bottom) + 96px);width:min(300px,78vw);display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px;border-radius:18px;background:rgba(22,14,58,.9);border:1px solid rgba(255,255,255,.14);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);animation:saypop .25s cubic-bezier(.2,.9,.3,1) both;transform-origin:0 100%}
+#onChat button{border:0;background:rgba(255,255,255,.08);color:#fff;font:500 15px -apple-system,system-ui,sans-serif;text-align:start;padding:10px 12px;border-radius:11px;min-height:40px}
+#onChat button:active{background:rgba(255,77,99,.3)}
+.onsay{position:fixed;z-index:6;max-width:62%;padding:8px 13px 9px;background:rgba(22,14,58,.8);border:1px solid rgba(255,255,255,.16);color:#fff;font:500 15px -apple-system,system-ui,sans-serif;pointer-events:none;animation:emopop 2.6s cubic-bezier(.2,.9,.3,1) forwards}
+.onsay b{display:block;font:700 11px -apple-system,system-ui,sans-serif;color:#ff8a9a}
+.onsay.theirs{right:12px;top:calc(env(safe-area-inset-top) + 62px);border-radius:14px 4px 14px 14px;transform:none;left:auto}
+.onsay.mine{left:58px;bottom:calc(env(safe-area-inset-bottom) + 150px);border-radius:14px 14px 14px 4px;opacity:.9;left:58px}
+.onsay{animation-name:saylife}@keyframes saylife{0%{opacity:0;translate:0 6px}8%{opacity:1;translate:0 0}85%{opacity:1}100%{opacity:0}}
 </style>
 </head>
 <body>
@@ -700,6 +716,8 @@ body:has(#menu.hide) #iosSheet{display:none}
 </div></div>
 <div id="onres" class="ov dim hide"></div>
 <div id="onEmo" class="hide"></div>
+<button id="onChatBtn" class="hide" aria-label="chat">💬</button>
+<div id="onChat" class="hide"></div>
 <div id="career" class="ov dim hide"><div class="crsheet">
   <div class="ohead"><h2 data-t="cr_title"></h2><span class="crtot" id="crStars"></span><button class="x" id="crClose" aria-label="close">✕</button></div>
   <p class="crhow" data-t="cr_how"></p>

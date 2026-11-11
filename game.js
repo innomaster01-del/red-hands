@@ -445,7 +445,7 @@ function update(dt,rdt){
     const armed=G.phase==='armed',kk=1-Math.exp(-dt*(armed?0.03:0.015));
     h.y=lerp(h.y,REST()-(armed?h.feint:0),kk);h.x=lerp(h.x,armed?h.aimx:0,kk);});
   if(G.phase==='slap'&&G.strike)updStrike();
-  if(G.phase==='countdown'){const e=G.t-G.pt,n=Math.floor(e/550);if(n!==G.cdN){G.cdN=n;if(n<3)sfxTone([n===2?660:523],'square',.12,.14);else{sfxTone([784,1047],'square',.14,.16,.07);sfxWhoosh();playVO('fight');}}
+  if(G.phase==='countdown'){const e=G.t-G.pt,n=Math.floor(e/550);if(n!==G.cdN){G.cdN=n;if(n<3)sfxTone([n===2?660:523],'square',.12,.14);else if(n===3){sfxTone([784,1047],'square',.14,.16,.07);sfxWhoosh();playVO('fight');}}
     if(e>2200){toReset();msg(G.att,t('m_start'),'#ffd23f',1.1);msg(def(),t('m_ready'),'#fff',1);}}
   if(G.phase==='armed'&&a.hands.some(h=>h.feint>0.1*L)&&d.face.e!=='scared')setFace(d,'scared',500);
   P.forEach(p=>{p.armSp=null;});gestureTick();
