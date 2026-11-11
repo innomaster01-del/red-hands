@@ -493,14 +493,14 @@ function drawHandW(p,k,palmUp,onTop){
     const breath=Math.sin(G.t/700+p*1.7+k)*0.012*L;
     let nerv=0;if(isDef&&G.phase==='armed'&&!G.demo){P[G.att].hands.forEach(o=>nerv=Math.max(nerv,o.feint/(0.22*L)));nerv=Math.max(nerv,clamp((G.t-G.armedT-4000)/4000,0,1)*.7);}
     const jx=nerv?rand(-1,1)*0.012*L*nerv:0,jy=nerv?rand(-1,1)*0.008*L*nerv:0;
-    let flipRoll=0,flipLift=0;const fu=(G.t-G.flipT)/420;let fs=1,pu=palmUp;if(fu>=0&&fu<1){fs=Math.max(.06,Math.abs(Math.cos(fu*PI)));if(fu<.5)pu=!pu;}
+    let flipRoll=0,flipLift=0,turn=null;const fu=(G.t-G.flipT)/420;let fs=1,pu=palmUp;if(fu>=0&&fu<1){fs=Math.max(.06,Math.abs(Math.cos(fu*PI)));if(fu<.5)pu=!pu;}
     const striking=G.phase==='slap'&&st&&p===G.att&&st.k===k;
     // the slap turns the hand over: palm-up at rest -> palm-down on the way in, and back again once it returns
     if(st&&p===G.att&&st.k===k&&palmUp){let tu=-1;if(G.phase==='slap')tu=clamp((G.t-st.t0)/(st.tp*0.62),0,1);else if(G.phase==='result'||G.phase==='flinch')tu=1-clamp((G.t-G.pt-140)/260,0,1);
-      if(tu>=0){const te=tu<.5?2*tu*tu:1-2*(1-tu)*(1-tu),sw=Math.sin(te*PI);fs*=Math.max(.14,Math.abs(Math.cos(te*PI)));if(te>=.5)pu=!pu;flipRoll=sw*(te<.5?-1:1)*0.2*(palmUp?1:-1);flipLift=sw;}}
+      if(tu>=0){const te=tu<.5?2*tu*tu:1-2*(1-tu)*(1-tu),sw=Math.sin(te*PI);if(te>=.5)pu=!pu;if(te>0.001&&te<0.999)turn=PI*(1-te);flipRoll=-sw*0.12;flipLift=sw;}}
     let lift=0;if(striking){const u=st.impacted?Math.max(0,1-(G.t-st.impT)/200):clamp((G.t-st.t0)/st.tp,0,1);lift=Math.sin(u*PI*0.5)*(st.impacted?u:1)*0.6;}
     // motion trail
-    if(striking&&!st.impacted&&st.trail){
+    if(striking&&!st.impacted&&st.trail&&turn==null){
       st.trail.forEach((tr,i)=>{ctx.save();ctx.globalAlpha=0.07+0.05*i;ctx.translate(laneX(k)+tr.x,tr.y);drawHandShape(ctx,L,{palmUp:pu,look:pl.look,noSleeve:true,ghost:true,flipS:fs});ctx.restore();});
       const sp=clamp((st.y0-h.y)/L,0,1);ctx.save();ctx.strokeStyle=`rgba(255,255,255,${0.55*sp})`;ctx.lineCap='round';
       for(let i=0;i<6;i++){const xx=laneX(k)+h.x+(-0.25+i*0.1)*L,y1=h.y+0.15*L+(i%2)*0.08*L;ctx.lineWidth=2+(i%3);ctx.beginPath();ctx.moveTo(xx,y1);ctx.lineTo(xx,y1+(0.35+0.25*((i*7)%3)/2)*L*sp);ctx.stroke();}ctx.restore();
@@ -516,7 +516,7 @@ function drawHandW(p,k,palmUp,onTop){
     if(h.ice>0.3||pl.frozen){ctx.save();ctx.globalCompositeOperation='lighter';const ig=ctx.createRadialGradient(0,0.55*L,0,0,0.55*L,0.7*L);ig.addColorStop(0,'rgba(120,210,255,.25)');ig.addColorStop(1,'rgba(120,210,255,0)');ctx.fillStyle=ig;ctx.beginPath();ctx.arc(0,0.55*L,0.7*L,0,PI*2);ctx.fill();ctx.restore();}
     if(h.lift){ctx.translate(0,h.lift*H*0.6);}
     const stretch=striking&&!st.impacted?Math.sin(clamp((G.t-st.t0)/st.tp,0,1)*PI)*0.9:0;
-    drawHandShape(ctx,L,{palmUp:pu,look:pl.look,bruise:MAXHP-pl.hp,red:(MAXHP-pl.hp)/MAXHP*0.22+h.flash*0.45,flash:h.flash,squash:h.squash-stretch,marks:h.marks,shake:shake+(h.spin||0)+(h.ro||0)/L*0.35+flipRoll*0.2,roll:flipRoll,flipS:fs,sleeveLen:H,onTop,t:G.t,scale:sc*(1+0.09*flipLift),lift:Math.max(lift,flipLift*0.55),pose,flatten:h.flat,fx:{ice:Math.max(h.ice,pl.frozen?0.7:0),char:h.char,crack:h.crack}});
+    drawHandShape(ctx,L,{palmUp:pu,look:pl.look,bruise:MAXHP-pl.hp,red:(MAXHP-pl.hp)/MAXHP*0.22+h.flash*0.45,flash:h.flash,squash:h.squash-stretch,marks:h.marks,shake:shake+(h.spin||0)+(h.ro||0)/L*0.35+flipRoll*0.2,roll:flipRoll,turn,flipS:fs,sleeveLen:H,onTop,t:G.t,scale:sc*(1+0.09*flipLift),lift:Math.max(lift,flipLift*0.55),pose,flatten:h.flat,fx:{ice:Math.max(h.ice,pl.frozen?0.7:0),char:h.char,crack:h.crack}});
     // dizzy stars
     const du=(G.t-h.dizzyT)/1600;
     if(h.dizzyPerm||(du>=0&&du<1)){const al=h.dizzyPerm?1:Math.min(1,(1-du)*3);

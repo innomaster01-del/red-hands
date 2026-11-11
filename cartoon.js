@@ -93,17 +93,15 @@ function drawHandShape(c,L,o){
   c.save();
   if(o.scale&&o.scale!==1){c.translate(0,0.6*L);c.scale(o.scale,o.scale);c.translate(0,-0.6*L);}
   if(o.shake){c.translate(0,1.2*L);c.rotate(o.shake);c.translate(0,-1.2*L);}
-  if(!o.noSleeve){c.save();c.scale(0.8+0.2*fs,1);
+  if(!o.noSleeve){c.save();c.scale(o.turn!=null?0.86+0.14*Math.abs(Math.cos(o.turn)):0.8+0.2*fs,1);
     if(!o.ghost&&!o.noShadow){const m=c.getTransform(),k=Math.hypot(m.a,m.b),h=o.onTop?0.07:0.035,BIG=6000;c.save();c.setTransform(m.a,m.b,m.c,m.d,m.e-BIG,m.f);c.shadowColor='rgba(12,4,46,.42)';c.shadowBlur=(0.035+h*.9)*L*k;c.shadowOffsetX=BIG+h*.55*L*k;c.shadowOffsetY=h*L*k;c.fillStyle='#000';c.fillRect(-sw/2,0.97*L,sw,len);c.restore();}
     drawSleeve(c,L,sl,sw,len);c.restore();}
   c.save();const sq=o.squash||0,fl=o.flatten||0;
   if(o.roll){c.translate(0,0.95*L);c.rotate(o.roll);c.translate(0,-0.95*L);}
-  // turning over: you see the edge of the hand for a moment, so give it thickness instead of letting it vanish
-  if(fs<.97&&!o.ghost){const g0=cartoonGeo(L,pose),th=Math.sqrt(1-fs*fs)*0.042*L,dir=(o.roll||0)>=0?1:-1,N=5;
-    const slab=(dx,fn)=>{c.save();c.translate(dx,0);c.translate(0,0.55*L);c.scale(fs,1);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);fn();c.restore();};
-    // the far side of the hand: one solid, shaded mass behind the face (single outline around the whole thing, no inner lines)
-    for(let i=1;i<=N;i++)slab(dir*th*i/N,()=>{c.strokeStyle=OUT;c.lineWidth=0.058*L;c.lineJoin='round';c.stroke(g0.sil);});
-    for(let i=N;i>=1;i--)slab(dir*th*i/N,()=>{c.fillStyle=sk.c[2];c.fill(g0.sil);c.fillStyle='rgba(70,24,44,.38)';c.fill(g0.sil);});}
+  // turning over: a real volume — see drawHandTurn
+  if(o.turn!=null&&!o.ghost&&!vic){drawHandTurn(c,L,o,sk,look);c.restore();
+    if(!o.noSleeve){const cs=0.84+0.16*Math.abs(Math.cos(o.turn));c.save();c.scale(cs,1);c.strokeStyle=OUT;c.lineWidth=0.035*L;const cuff=rrPath(-sw/2-0.03*L,0.9*L,sw+0.06*L,0.14*L,0.05*L),cg=c.createLinearGradient(0,0.9*L,0,1.04*L);cg.addColorStop(0,'#ffffff');cg.addColorStop(1,'#d9d4ee');c.fillStyle=cg;c.fill(cuff);c.stroke(cuff);c.fillStyle=sl.light;c.fillRect(-sw/2-0.01*L,0.955*L,sw+0.02*L,0.03*L);c.restore();}
+    c.restore();return;}
   c.translate(0,0.55*L);c.scale(fs*(1+0.1*sq+0.5*fl),1-0.08*sq-0.7*fl);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);
   const g=cartoonGeo(L,pose);
   // drop shadow
@@ -206,3 +204,44 @@ const TXT={gold:['#fff7c2','#ffd23f'],steel:['#ffffff','#e6e2ff'],red:['#ffd0d6'
 function metalText(c,s,x,y,size,style='gold',dir,glow){const pal=TXT[style]||TXT.gold;c.save();c.font=`900 ${size}px -apple-system,system-ui,sans-serif,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.direction=dir||(LANG==='he'?'rtl':'ltr');c.lineJoin='round';
   c.lineWidth=size*0.24;c.strokeStyle=OUT;c.strokeText(s,x,y+size*0.04);c.strokeText(s,x,y);
   const g=c.createLinearGradient(0,y-size*0.5,0,y+size*0.5);g.addColorStop(0,pal[0]);g.addColorStop(.55,pal[1]);g.addColorStop(1,pal[1]);c.fillStyle=g;c.fillText(s,x,y);c.restore();}
+
+// ---- the hand as a volume, for the moment it turns over ----
+// phi: 0 = back of the hand faces you, PI = palm faces you. The hand rotates about the forearm axis.
+// Fingers are cylinders (they keep their width while the gaps between them close), the palm is a slab whose visible
+// width is face*|cos| + thickness*|sin|, and everything is painted far-to-near so nearer fingers overlap farther ones.
+function drawHandTurn(c,L,o,sk,look){const phi=o.turn,co=Math.cos(phi),si=Math.sin(phi),ac=Math.abs(co),as=Math.abs(si);
+  const FX=[-0.2,-0.067,0.067,0.2],TIP=[0.07,0,0.035,0.13],FW=0.13*L,TH=0.15*L;   // same numbers as the flat drawing
+  const px=x=>x*L*co, pz=x=>x*L*si;                       // screen x and depth of a point on the hand plane
+  const parts=[];
+  FX.forEach((x,i)=>parts.push({k:'f',i,z:pz(x),x:px(x),y1:(TIP[i]+0.065)*L,y2:0.56*L,w:FW}));
+  parts.push({k:'t',z:pz(-0.36),x1:px(-0.27),y1:0.74*L,x2:px(-0.43),y2:0.44*L,w:0.15*L});
+  const hw=0.295*L*ac+TH/2*as;                            // half the visible width of the palm slab
+  parts.sort((a,b)=>a.z-b.z);
+  // paint order: far thumb, fingers far-to-near, then the palm over their roots (so they grow out of it), then a near thumb
+  {const th=parts.find(q=>q.k==='t'),fs2=parts.filter(q=>q.k==='f');parts.length=0;if(th.z<0)parts.push(th);parts.push(...fs2,{k:'p',z:0});if(th.z>=0)parts.push(th);}
+  const lift=o.lift||0;
+  // contact shadow of the whole volume
+  if(!o.noShadow){const m=c.getTransform(),k=Math.hypot(m.a,m.b),h=(o.onTop?0.085:0.035)*(1+lift*3.2),BIG=6000;c.save();c.setTransform(m.a,m.b,m.c,m.d,m.e-BIG,m.f);c.shadowColor=`rgba(12,4,46,${.45*(1-lift*.35)})`;c.shadowBlur=(0.035+h*.9)*L*k;c.shadowOffsetX=BIG+h*.55*L*k;c.shadowOffsetY=h*L*k;c.fillStyle='#000';
+    c.fill(rrPath(-hw,0.36*L,hw*2,0.62*L,Math.min(0.17*L,hw)));FX.forEach((x,i)=>c.fill(taper(px(x),0.56*L,px(x),(TIP[i]+0.065)*L,FW,FW)));c.restore();}
+  const red=o.red||0;
+  // a round limb: lit along the upper-left, falling into shade at the edges — the gradient runs across the limb, in screen space
+  const round=(path,xc,w,dark,noStroke)=>{c.save();if(!noStroke){c.strokeStyle=OUT;c.lineWidth=0.058*L;c.lineJoin='round';c.stroke(path);}c.fillStyle=sk.c[1];c.fill(path);c.clip(path);
+    const g=c.createLinearGradient(xc-w/2,0,xc+w/2,0);g.addColorStop(0,'rgba(255,246,230,.1)');g.addColorStop(.3,'rgba(255,246,230,.34)');g.addColorStop(.55,'rgba(255,246,230,0)');g.addColorStop(.8,'rgba(90,30,50,.16)');g.addColorStop(1,'rgba(70,20,50,.38)');c.fillStyle=g;c.fillRect(xc-w,-L,w*2,3*L);
+    if(dark>0){c.fillStyle=`rgba(60,18,50,${dark})`;c.fillRect(xc-w,-L,w*2,3*L);}
+    if(red>0.01){c.fillStyle=`rgba(255,60,70,${Math.min(.5,red*.8)})`;c.fillRect(xc-w,-L,w*2,3*L);}
+    c.restore();};
+  const zmax=0.43*L*as||1,nl=item(look.nails),backFacing=co>0,face=Math.max(0,(ac-.25)/.75);
+  {c.save();c.strokeStyle=OUT;c.lineWidth=0.058*L;c.lineJoin='round';c.stroke(rrPath(-hw,0.36*L,hw*2,0.62*L,Math.min(0.17*L,hw)));c.restore();}
+  parts.forEach(pt=>{const far=clamp(0.5-pt.z/(2*zmax),0,1)*as*.3;           // parts further from the eye sit a little in shadow
+    if(pt.k==='f'){round(taper(pt.x,pt.y2,pt.x,pt.y1,pt.w,pt.w),pt.x,pt.w,far);
+      // nails only on the back, creases only on the palm; both shrink as that face turns away
+      if(face>0&&!sk.glove){if(backFacing){let col='#ffeee8';if(nl&&nl.col)col=nl.col==='rainbow'?['#ff4d6d','#ffd23f','#3ee08f','#3b7bff'][pt.i]:nl.col;const nw=0.084*L*(0.35+0.65*face),ny=TIP[pt.i]*L+0.025*L;c.save();c.globalAlpha=face;c.fillStyle=col;c.fill(rrPath(pt.x-nw/2,ny,nw,0.088*L,Math.min(0.037*L,nw/2)));c.restore();}
+        else{c.save();c.globalAlpha=face*.8;c.strokeStyle='rgba(60,25,30,.35)';c.lineWidth=0.016*L;c.lineCap='round';for(const kk of[0.17,0.3]){c.beginPath();c.moveTo(pt.x-0.035*L*face,(TIP[pt.i]+kk)*L);c.lineTo(pt.x+0.035*L*face,(TIP[pt.i]+kk)*L);c.stroke();}c.restore();}}}
+    else if(pt.k==='t'){round(taper(pt.x1,pt.y1,pt.x2,pt.y2,pt.w,pt.w),(pt.x1+pt.x2)/2,pt.w+Math.abs(pt.x1-pt.x2),far);}
+    else{const pp=rrPath(-hw,0.36*L,hw*2,0.62*L,Math.min(0.17*L,hw));round(pp,0,hw*2,0,true);
+      // the side of the palm you can now see: a darker band on the edge that is turning toward you
+      c.save();c.clip(pp);const side=TH*as*.9,dir=si*co>=0?1:-1;c.fillStyle='rgba(70,22,48,.26)';c.fillRect(dir>0?hw-side:-hw,0.3*L,side,0.8*L);
+      if(face>0&&!backFacing&&!sk.glove){c.globalAlpha=face*.8;c.strokeStyle='rgba(60,25,30,.32)';c.lineWidth=0.016*L;c.lineCap='round';const q=(x,y)=>[x*L*co,y*L];
+        const m=-1;c.beginPath();c.moveTo(...q(m*0.27,0.5));c.quadraticCurveTo(...q(m*0.02,0.47),...q(m*-0.16,0.56));c.stroke();c.beginPath();c.moveTo(...q(m*0.27,0.6));c.quadraticCurveTo(...q(m*0.05,0.58),...q(m*-0.1,0.66));c.stroke();c.beginPath();c.moveTo(...q(m*-0.17,0.5));c.quadraticCurveTo(...q(m*-0.12,0.75),...q(m*-0.02,0.92));c.stroke();}
+      const ws=c.createLinearGradient(0,0.74*L,0,0.92*L);ws.addColorStop(0,'rgba(60,18,58,0)');ws.addColorStop(1,'rgba(60,18,58,.3)');c.globalAlpha=1;c.fillStyle=ws;c.fillRect(-L,0.74*L,2*L,0.2*L);c.restore();}});
+  if((o.flash||0)>.55){c.save();c.globalAlpha=Math.min(1,(o.flash-.55)*1.8);c.fillStyle='#fff';c.fill(rrPath(-hw,0.36*L,hw*2,0.62*L,Math.min(0.17*L,hw)));c.restore();}}
