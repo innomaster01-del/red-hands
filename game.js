@@ -122,6 +122,7 @@ function startStrike(k,type,forced,dir,special){
 function beginStage(){const s=G.strike,a=P[G.att],h=a.hands[s.k],d=P[def()],dh=d.hands[s.j];
   s.t0=G.t;s.y0=h.y;s.x0=h.x;s.impacted=false;s.reacted=0;s.trail=[];
   s.tp=SPEEDS[G.speed].tp*(s.special==='bolt'?0.55:s.special==='mega'?1.1:s.special==='tornado'?1.25:1)*(s.type==='diag'?1.2:1)*(s.stage===2?0.8:1)*(s.forced?0.7:1)*(G.mode==='tut'&&a.ai?2.3:1);
+  if(!a.ai&&!s.forced&&!s.special&&s.stage===1&&a.swipeK){s.tp*=a.swipeK;s.fast=a.swipeK<.9;}a.swipeK=0;
   if(s.forced)s.aim=0;else if(s.stage===2)s.aim=clamp(-(laneX(s.j)+dh.x)-laneX(s.k),-0.32*L,0.32*L);else s.aim=h.aimx;
   sfxWhoosh();
 }
@@ -350,7 +351,7 @@ cv.addEventListener('pointerdown',e=>{
   if(p===G.att||(G.phase==='finish'&&p===G.finW)){
     const r=dblRect();if(G.phase!=='finish'&&canDouble(p)&&!pl.armSp&&x>r.x&&x<r.x+r.w&&y>r.y&&y<r.y+r.h){pl.dbl=!pl.dbl;sfxTone([pl.dbl?880:440],'triangle',.08,.15);return;}
     const k=nH()===1?0:(x<0?0:1),h=pl.hands[k];if(h.ptr!=null)return;
-    h.ptr=e.pointerId;Object.assign(h,{fx:x,fy:y,sx:x,sy:y,t0:performance.now(),lfx:x,lfy:y,lft:performance.now(),touch:false,draw:false,path:null,downT:G.t});if(G.phase==='finish'){h.draw=true;h.drawT=G.t;h.path=[[x,y]];}
+    h.ptr=e.pointerId;Object.assign(h,{fx:x,fy:y,sx:x,sy:y,t0:performance.now(),lfx:x,lfy:y,lft:performance.now(),touch:false,draw:false,path:null,downT:G.t});if(G.phase==='armed'&&G.t-(pl.tapT||-1e9)<430){pl.tapT=0;h.draw=true;h.drawT=G.t;h.path=[[x,y]];buzz(14);sfxTone([330,495],'triangle',.05,.08,.04);}if(G.phase==='finish'){h.draw=true;h.drawT=G.t;h.path=[[x,y]];}
   }else{
     let best=null,bd=1e9;pl.hands.forEach((h,k)=>{if(h.ptr!=null)return;const d=Math.abs(x-(laneX(k)+h.x));if(d<bd){bd=d;best=h;}});
     if(!best)return;const h=best;h.ptr=e.pointerId;Object.assign(h,{fx:x,fy:y,sx:x,sy:y,t0:performance.now(),touch:true,touchT:G.t,offx:h.x-x,offy:h.y-y});
@@ -365,8 +366,8 @@ cv.addEventListener('pointermove',e=>{
     const fwd=h.sy-y,dx=x-h.sx,dt=Math.max(1,now-h.lft),vy=(h.lfy-y)/dt,vx=(x-h.lfx)/dt;
     h.feint=clamp(fwd*0.6,0,0.22*L);h.aimx=clamp(dx*0.6,-0.32*L,0.32*L);
     const diagOk=hasUnlock('diag')&&G.mode!=='tut';
-    if(diagOk&&Math.abs(dx)>0.3*L&&Math.abs(vx)>0.9&&Math.abs(dx)>fwd*0.8){h.aimx=clamp(dx*0.3,-0.25*L,0.25*L);startStrike(h.k,'diag',false,Math.sign(dx));}
-    else if(fwd>0.55*L||(vy>1.3&&fwd>18))attackWith(pl,h.k,pl.dbl?'double':'normal');
+    if(diagOk&&Math.abs(dx)>0.3*L&&Math.abs(vx)>0.9&&Math.abs(dx)>fwd*0.8){pl.swipeK=clamp(1.42-0.26*Math.abs(vx),0.7,1.32);h.aimx=clamp(dx*0.3,-0.25*L,0.25*L);startStrike(h.k,'diag',false,Math.sign(dx));}
+    else if(fwd>0.5*L||(vy>1.1&&fwd>22)){pl.swipeK=clamp(1.42-0.26*Math.max(vy,fwd/Math.max(60,now-h.t0)),0.7,1.32);attackWith(pl,h.k,pl.dbl?'double':'normal');}
   }
   h.lfx=x;h.lfy=y;h.lft=now;
 });
@@ -385,7 +386,7 @@ function execTap(pl,k){const b=pl.buf.join('');pl.buf=[];
 function up(e){const [pl,h]=findHand(e.pointerId);if(!h)return;
   if(h.draw){if(isGestPlayer(pl.i))finishDraw(pl,h);else{h.draw=false;h.path=null;}}
   else if(isGestPlayer(pl.i)&&G.phase!=='finish'){const dur=performance.now()-h.t0,mv=Math.hypot(h.fx-h.sx,h.sy-h.fy);
-    if(mv<16&&G.phase==='armed')attackWith(pl,h.k,pl.dbl?'double':'normal');h.feint=0;}
+    if(mv<16&&dur<260&&G.phase==='armed'){pl.tapT=G.t;pl.tapXY=[h.fx,h.fy];}h.feint=0;}
   h.ptr=null;h.touch=false;}
 cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
 addEventListener('keydown',e=>{if(e.code==='Space'&&!G.demo&&!P[G.att].ai&&G.phase==='armed')startStrike(0,P[G.att].dbl?'double':'normal');});
@@ -492,11 +493,11 @@ function drawHandW(p,k,palmUp,onTop){
     const breath=Math.sin(G.t/700+p*1.7+k)*0.012*L;
     let nerv=0;if(isDef&&G.phase==='armed'&&!G.demo){P[G.att].hands.forEach(o=>nerv=Math.max(nerv,o.feint/(0.22*L)));nerv=Math.max(nerv,clamp((G.t-G.armedT-4000)/4000,0,1)*.7);}
     const jx=nerv?rand(-1,1)*0.012*L*nerv:0,jy=nerv?rand(-1,1)*0.008*L*nerv:0;
-    const fu=(G.t-G.flipT)/420;let fs=1,pu=palmUp;if(fu>=0&&fu<1){fs=Math.max(.06,Math.abs(Math.cos(fu*PI)));if(fu<.5)pu=!pu;}
+    let flipRoll=0,flipLift=0;const fu=(G.t-G.flipT)/420;let fs=1,pu=palmUp;if(fu>=0&&fu<1){fs=Math.max(.06,Math.abs(Math.cos(fu*PI)));if(fu<.5)pu=!pu;}
     const striking=G.phase==='slap'&&st&&p===G.att&&st.k===k;
     // the slap turns the hand over: palm-up at rest -> palm-down on the way in, and back again once it returns
     if(st&&p===G.att&&st.k===k&&palmUp){let tu=-1;if(G.phase==='slap')tu=clamp((G.t-st.t0)/(st.tp*0.62),0,1);else if(G.phase==='result'||G.phase==='flinch')tu=1-clamp((G.t-G.pt-140)/260,0,1);
-      if(tu>=0){fs*=Math.max(.08,Math.abs(Math.cos(tu*PI)));if(tu>=.5)pu=!pu;}}
+      if(tu>=0){const te=tu<.5?2*tu*tu:1-2*(1-tu)*(1-tu),sw=Math.sin(te*PI);fs*=Math.max(.14,Math.abs(Math.cos(te*PI)));if(te>=.5)pu=!pu;flipRoll=sw*(te<.5?-1:1)*0.2*(palmUp?1:-1);flipLift=sw;}}
     let lift=0;if(striking){const u=st.impacted?Math.max(0,1-(G.t-st.impT)/200):clamp((G.t-st.t0)/st.tp,0,1);lift=Math.sin(u*PI*0.5)*(st.impacted?u:1)*0.6;}
     // motion trail
     if(striking&&!st.impacted&&st.trail){
@@ -515,7 +516,7 @@ function drawHandW(p,k,palmUp,onTop){
     if(h.ice>0.3||pl.frozen){ctx.save();ctx.globalCompositeOperation='lighter';const ig=ctx.createRadialGradient(0,0.55*L,0,0,0.55*L,0.7*L);ig.addColorStop(0,'rgba(120,210,255,.25)');ig.addColorStop(1,'rgba(120,210,255,0)');ctx.fillStyle=ig;ctx.beginPath();ctx.arc(0,0.55*L,0.7*L,0,PI*2);ctx.fill();ctx.restore();}
     if(h.lift){ctx.translate(0,h.lift*H*0.6);}
     const stretch=striking&&!st.impacted?Math.sin(clamp((G.t-st.t0)/st.tp,0,1)*PI)*0.9:0;
-    drawHandShape(ctx,L,{palmUp:pu,look:pl.look,bruise:MAXHP-pl.hp,red:(MAXHP-pl.hp)/MAXHP*0.22+h.flash*0.45,flash:h.flash,squash:h.squash-stretch,marks:h.marks,shake:shake+(h.spin||0)+(h.ro||0)/L*0.35,flipS:fs,sleeveLen:H,onTop,t:G.t,scale:sc,lift,pose,flatten:h.flat,fx:{ice:Math.max(h.ice,pl.frozen?0.7:0),char:h.char,crack:h.crack}});
+    drawHandShape(ctx,L,{palmUp:pu,look:pl.look,bruise:MAXHP-pl.hp,red:(MAXHP-pl.hp)/MAXHP*0.22+h.flash*0.45,flash:h.flash,squash:h.squash-stretch,marks:h.marks,shake:shake+(h.spin||0)+(h.ro||0)/L*0.35+flipRoll*0.2,roll:flipRoll,flipS:fs,sleeveLen:H,onTop,t:G.t,scale:sc*(1+0.09*flipLift),lift:Math.max(lift,flipLift*0.55),pose,flatten:h.flat,fx:{ice:Math.max(h.ice,pl.frozen?0.7:0),char:h.char,crack:h.crack}});
     // dizzy stars
     const du=(G.t-h.dizzyT)/1600;
     if(h.dizzyPerm||(du>=0&&du<1)){const al=h.dizzyPerm?1:Math.min(1,(1-du)*3);
@@ -563,7 +564,7 @@ function drawHUD(p){
       if(canDouble(p)&&!pl.armSp){const rr=dblRect(),pulse=.5+.5*Math.sin(G.t/160);const path=rrPath(rr.x,rr.y,rr.w,rr.h,20);
         ctx.save();ctx.shadowColor='#ffd23f';ctx.shadowBlur=10+8*pulse;ctx.fillStyle=pl.dbl?'#3ee08f':'#ffd23f';ctx.fill(path);ctx.restore();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=2;ctx.stroke(path);
         ctx.fillStyle='#22164f';ctx.font='800 15px -apple-system,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.direction=LANG==='he'?'rtl':'ltr';ctx.fillText(pl.dbl?t('dbl_on'):t('dbl_btn'),0,rr.y+rr.h/2+1);}
-      else{let hnt='';if(isAtt)hnt=pl.armSp?t('sp_tapnow',SPECIALS.find(x=>x.id===pl.armSp).ic+' '+t('sp_'+pl.armSp)):t('hint_att3');else if(!pl.hands.some(h=>h.touch))hnt=nH()>1?t('hint_hold2'):t('hint_hold');else hnt=t('hint_def');
+      else{let hnt='';if(isAtt)hnt=pl.armSp?t('sp_tapnow',SPECIALS.find(x=>x.id===pl.armSp).ic+' '+t('sp_'+pl.armSp)):(pl.energy>=25&&G.mode!=='tut'?t('hint_sp'):t('hint_att3'));else if(!pl.hands.some(h=>h.touch))hnt=nH()>1?t('hint_hold2'):t('hint_hold');else hnt=t('hint_def');
         if(isAtt&&PROF.ach.special&&G.mode!=='tut')hnt='';
         if(hnt){const hs=Math.max(12,Math.min(14,W*0.034));ctx.font=`600 ${hs}px -apple-system,system-ui,sans-serif`;ctx.direction=LANG==='he'?'rtl':'ltr';const hw=Math.min(ctx.measureText(hnt).width+26,W-20);
         const urgent=!isAtt&&!pl.hands.some(h=>h.touch);const yy=by-100;

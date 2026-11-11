@@ -93,10 +93,15 @@ function drawHandShape(c,L,o){
   c.save();
   if(o.scale&&o.scale!==1){c.translate(0,0.6*L);c.scale(o.scale,o.scale);c.translate(0,-0.6*L);}
   if(o.shake){c.translate(0,1.2*L);c.rotate(o.shake);c.translate(0,-1.2*L);}
-  if(!o.noSleeve){c.save();c.scale(fs,1);
+  if(!o.noSleeve){c.save();c.scale(0.8+0.2*fs,1);
     if(!o.ghost&&!o.noShadow){const m=c.getTransform(),k=Math.hypot(m.a,m.b),h=o.onTop?0.07:0.035,BIG=6000;c.save();c.setTransform(m.a,m.b,m.c,m.d,m.e-BIG,m.f);c.shadowColor='rgba(12,4,46,.42)';c.shadowBlur=(0.035+h*.9)*L*k;c.shadowOffsetX=BIG+h*.55*L*k;c.shadowOffsetY=h*L*k;c.fillStyle='#000';c.fillRect(-sw/2,0.97*L,sw,len);c.restore();}
     drawSleeve(c,L,sl,sw,len);c.restore();}
-  c.save();const sq=o.squash||0,fl=o.flatten||0;c.translate(0,0.55*L);c.scale(fs*(1+0.1*sq+0.5*fl),1-0.08*sq-0.7*fl);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);
+  c.save();const sq=o.squash||0,fl=o.flatten||0;
+  if(o.roll){c.translate(0,0.95*L);c.rotate(o.roll);c.translate(0,-0.95*L);}
+  // turning over: you see the edge of the hand for a moment, so give it thickness instead of letting it vanish
+  if(fs<.97&&!o.ghost){const g0=cartoonGeo(L,pose),th=(1-fs)*0.075*L,dir=(o.roll||0)>=0?1:-1;c.save();c.translate(dir*th,0.012*L*(1-fs));c.translate(0,0.55*L);c.scale(fs,1);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);
+    strokeAll(c,g0,OUT,0.058*L);fillAll(c,g0,sk.c[2]);c.fillStyle='rgba(40,10,50,.28)';c.fill(g0.sil);c.restore();c.translate(-dir*th*.6,0);}
+  c.translate(0,0.55*L);c.scale(fs*(1+0.1*sq+0.5*fl),1-0.08*sq-0.7*fl);c.translate(0,-0.55*L);if(palmUp)c.scale(-1,1);
   const g=cartoonGeo(L,pose);
   // drop shadow
   // soft contact shadow: the light always comes from the top-left of the screen, whichever way the hand faces.

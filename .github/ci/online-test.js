@@ -19,7 +19,7 @@ const ok=(c,m)=>{console.log((c?'PASS ':'FAIL ')+m);if(!c)process.exitCode=1;};
  await A.waitForFunction(()=>G.phase==='countdown',null,{timeout:8000}).catch(()=>{});ok(await A.evaluate(()=>G.phase!=='faceoff'),'both fingers down starts the countdown');
  await A.mouse.up();await B.mouse.up();await A.waitForFunction(()=>G.phase==='armed',null,{timeout:8000});
  await A.evaluate(()=>{G.att=1;toReset();});await A.waitForFunction(()=>G.phase==='armed');await B.waitForTimeout(400);
- await B.mouse.click(196,650);await A.waitForTimeout(600);ok(await A.evaluate(()=>G.phase!=='armed'),'guest tap slaps on the host');
+ await B.mouse.move(196,650);await B.mouse.down();await B.waitForTimeout(120);for(let i=1;i<=6;i++)await B.mouse.move(196,650-i*35);await B.mouse.up();await A.waitForTimeout(600);ok(await A.evaluate(()=>G.phase!=='armed'),'guest swipe slaps on the host');
  console.log('rtt ms',await A.evaluate(()=>Math.round(ON.rtt)));
  await A.waitForTimeout(1500);await A.evaluate(()=>{P[0].hp=0;gameOver(1,true);});
  await B.waitForFunction(()=>!document.getElementById('onres').classList.contains('hide'),null,{timeout:12000}).catch(()=>{});

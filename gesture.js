@@ -62,13 +62,15 @@ function glyphSVG(id,size=34,col='currentColor'){const s=SHAPES[id],p=s.pts.map(
 // ---------- the drawing state on each hand ----------
 const HOLD_MS=240,HOLD_TOL=18;
 let strokes=[];  // finished strokes fading out: {p,pts,t,ok,col}
-function gestureTick(){P.forEach(pl=>{if(pl.ai)return;pl.hands.forEach(h=>{
+function gestureTick(){return; // specials now start with a double-tap (see pointerdown); holding still is just holding
+}
+function gestureTickOld(){P.forEach(pl=>{if(pl.ai)return;pl.hands.forEach(h=>{
   if(h.ptr==null||h.touch||h.draw)return;
   const canDraw=(G.phase==='armed'&&pl.i===G.att)||(G.phase==='finish'&&pl.i===G.finW);
   if(canDraw&&h.downT>=(G.phase==='armed'?G.armedT:G.pt)&&performance.now()-h.t0>HOLD_MS&&Math.hypot(h.fx-h.sx,h.fy-h.sy)<HOLD_TOL){h.draw=true;h.drawT=G.t;h.path=[[h.fx,h.fy]];h.feint=0;buzz(12);sfxTone([330,495],'triangle',.05,.08,.04);}});});}
 function finishDraw(pl,h){const path=h.path||[];h.draw=false;h.path=null;
   const fin=G.phase==='finish',r=recognize(path,0.38*L);
-  if(!fin&&path.length<5){if(G.phase==='armed')attackWith(pl,h.k,'normal');return;}
+  if(!fin&&path.length<5)return;
   if(!r){if(path.length>4){strokes.push({p:pl.i,pts:path,t:G.t,ok:false});sfxTone([196],'triangle',.06,.12);}return;}
   if(fin){const f=FINISHERS.find(x=>x.shape===r.id);strokes.push({p:pl.i,pts:path,t:G.t,ok:!!f,col:f?'#ffd9a0':null});if(f){buzz(40);startFatal(f.id);}else{sfxTone([196],'triangle',.06,.12);}return;}
   const sp=SPECIALS.find(x=>x.shape===r.id);
@@ -80,6 +82,8 @@ function finishDraw(pl,h){const path=h.path||[];h.draw=false;h.path=null;
 function drawStrokes(){strokes=strokes.filter(s=>G.t-s.t<(s.ok?520:380));
   strokes.forEach(s=>{const u=(G.t-s.t)/(s.ok?520:380);inFrame(s.p,()=>{ctx.save();if(!s.ok)ctx.translate(Math.sin(u*40)*4*(1-u),0);
     chalkStroke(ctx,s.pts,6+(s.ok?u*8:0),(1-u)*(s.ok?1:.6),s.ok?s.col:'#ff4d6d');ctx.restore();});});
+  P.forEach(pl=>{if(pl.ai||pl.remote||!pl.tapT||G.phase!=='armed')return;const u=(G.t-pl.tapT)/430;if(u<0||u>1)return;inFrame(pl.i,()=>{ctx.save();ctx.globalAlpha=(1-u)*.8;ctx.strokeStyle='#fff';ctx.shadowColor='#9d8cff';ctx.shadowBlur=12;ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(pl.tapXY[0],pl.tapXY[1],34-14*u,0,PI*2);ctx.stroke();ctx.restore();});});
   P.forEach(pl=>{if(pl.ai)return;pl.hands.forEach(h=>{if(!h.draw)return;inFrame(pl.i,()=>{
     const e=G.t-h.drawT,u=Math.min(1,e/180);
     // the finger's chalk ring says "you're drawing now"

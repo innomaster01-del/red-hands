@@ -221,3 +221,11 @@ Object.assign(STR.en,{btn_ai:'Career',cr_title:'Career',cr_how:'Twelve rivals, e
  cr_unlocked:n=>`New rival: ${n}`,cr_next:n=>`Next: ${n}`,cr_champion:'You beat the Red King. You are the champion.'});
 Object.assign(STR.he,{btn_ai:'קריירה',cr_title:'קריירה',cr_how:'12 יריבים, כל אחד מהיר וחכם מהקודם. מנצחים אחד ופותחים את הבא. ניצחון בלי לאבד לב נותן 3 כוכבים.',
  cr_locked:n=>`קודם לנצח את ${n}`,cr_lost:n=>`${n} ניצח הפעם. נסה שוב.`,cr_perfect:'מושלם — 3 כוכבים',cr_good:'ניצחון יפה — 2 כוכבים',cr_close:'בקושי — כוכב אחד',cr_unlocked:n=>`יריב חדש: ${n}`,cr_next:n=>`הבא: ${n}`,cr_champion:'ניצחת את המלך האדום. אתה האלוף.'});
+// ---- v16: swipe to slap, double-tap to draw ----
+Object.assign(STR.en,{hint_att3:'Swipe forward to slap — faster swipe, faster slap',hint_sp:'Double-tap, then draw a shape = special ✍️',
+ tut1_d:'You are the attacker (bottom). Put your finger on your hand and flick it forward at the other hand. The faster you swipe, the faster the slap.',
+ tut4_d:'Specials are drawn. Tap twice quickly, keep the second touch down, draw a peak like a flame — up and down — and let go.',tut_hint4:'Double-tap, draw a peak ⋀, let go',
+ mv_special_how:'Tap twice quickly on your half and keep the second touch down — a glowing ring appears. Draw the shape and let go. The dot shows where to start. Each move costs ⚡.',
+ train_how_sp:'Double-tap, draw it, let go',
+ guide:STR.en.guide.map(g=>g[0]==='tap'?['tap','👋','Slap','Put a finger on your hand and flick forward. Your swipe speed is the slap speed — a lazy swipe is easy to dodge.']:g[0]==='special'?['special','✍️','Special moves','Double-tap and keep the second touch down, then draw: ⋀ Fire · Z Lightning · O Tornado · △ Mega. Each costs ⚡.']:g)});
+Object.assign(STR.he,{hint_att3:'החלק קדימה כדי לתת מכה — ככל שמהר יותר, המכה מהירה יותר',hint_sp:'לחיצה כפולה ואז לצייר צורה = מכה מיוחדת',train_how_sp:'לחיצה כפולה, צייר, שחרר'});
