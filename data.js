@@ -6,6 +6,9 @@ const ITEMS=[
  {id:'sl_green',cat:'sleeve',price:80,main:'#2fc67a',dark:'#167045',light:'#9df0c4',pat:'bands',n:{he:'ירוק דשא',en:'Grass Green'}},
  {id:'sl_black',cat:'sleeve',price:120,main:'#34344a',dark:'#15151f',light:'#8a8aa8',pat:'bands',n:{he:'שחור מסוכן',en:'Danger Black'}},
  {id:'sl_candy',cat:'sleeve',price:150,main:'#ff7ac8',dark:'#a8357a',light:'#ffd1ec',pat:'diag',n:{he:'סוכריה',en:'Candy'}},
+ {id:'sl_benny',cat:'sleeve',price:0,boss:'benny',main:'#7a8597',dark:'#3b4350',light:'#cfd6e2',pat:'bands',n:{he:'Door Guard',en:'Door Guard'}},
+ {id:'sl_sting',cat:'sleeve',price:0,boss:'sting',main:'#8a3ff0',dark:'#3d1680',light:'#7dffb0',pat:'diag',n:{he:'Venom',en:'Venom'}},
+ {id:'sl_king',cat:'sleeve',price:0,boss:'king',main:'#c4122f',dark:'#5e0616',light:'#ffd66b',pat:'gold',n:{he:'Royal Red',en:'Royal Red'}},
  {id:'sl_camo',cat:'sleeve',price:200,main:'#6b7d3a',dark:'#3a4520',light:'#b4c27a',pat:'camo',n:{he:'קומנדו',en:'Commando'}},
  {id:'sl_flame',cat:'sleeve',price:300,main:'#2a2a38',dark:'#111118',light:'#ffb03b',pat:'flame',n:{he:'להבות',en:'Flames'}},
  {id:'sl_gold',cat:'sleeve',price:500,main:'#f5c542',dark:'#a07818',light:'#fff1b8',pat:'gold',n:{he:'זהב',en:'Gold'}},
@@ -18,6 +21,7 @@ const ITEMS=[
  {id:'gl_white',cat:'skin',price:200,glove:true,c:['#ffffff','#f1f1f7','#d4d4e6'],n:{he:'כפפה מצוירת',en:'Cartoon glove'}},
  {id:'gl_zombie',cat:'skin',price:250,zombie:true,c:['#c2e69a','#8fc25e','#6b9a42'],n:{he:'יד זומבי',en:'Zombie hand'}},
  {id:'gl_leather',cat:'skin',price:250,glove:true,c:['#5a5a6a','#36364a','#20202c'],n:{he:'כפפת עור',en:'Leather glove'}},
+ {id:'gl_king',cat:'skin',price:0,boss:'king',glove:true,c:['#fff3c4','#f5c542','#b8860b'],n:{he:'Golden Glove',en:'Golden Glove'}},
  {id:'gl_robot',cat:'skin',price:400,glove:true,robot:true,c:['#eef3f8','#b4c2d2','#7d8ea3'],n:{he:'יד רובוט',en:'Robot hand'}},
  {id:'gl_gold',cat:'skin',price:700,glove:true,c:['#fff4c4','#f5c542','#c48f12'],n:{he:'יד זהב',en:'Golden hand'}},
  // tattoos
@@ -121,7 +125,7 @@ let PROF=freshProfile();
 function loadProfile(){try{const s=localStorage.getItem('redhands-v1');if(s){const p=JSON.parse(s);const f=freshProfile();PROF=Object.assign(f,p);PROF.stats=Object.assign(f.stats,p.stats||{});PROF.equip=Object.assign({},DEFAULT_EQUIP,p.equip||{});if(!PROF.v5){PROF.v5=1;if(PROF.v4&&PROF.equip.arena==='ar_temple')PROF.equip.arena='ar_purple';}}}catch(e){}}
 function saveProfile(){try{localStorage.setItem('redhands-v1',JSON.stringify(PROF));}catch(e){}}
 function xpToLevel(n){let a=0;for(let i=1;i<n;i++)a+=needFor(i);return a;}
-function owns(id){const it=item(id);if(!it)return false;if(it.cat==='arena')return levelInfo(PROF.xp).lvl>=(it.lvl||1);return it.price===0||!!PROF.owned[id];}
+function owns(id){const it=item(id);if(!it)return false;if(it.boss)return !!(PROF.career&&PROF.career.stars&&PROF.career.stars[it.boss]);if(it.cat==='arena')return levelInfo(PROF.xp).lvl>=(it.lvl||1);return it.price===0||!!PROF.owned[id];}
 function hasUnlock(key){const u=UNLOCKS.find(u=>u.key===key);if(!u)return true;const lvl=levelInfo(PROF.xp).lvl;if(key==='twohands')return lvl>=u.lvl&&Object.keys(PROF.ach).length>=TWOHANDS_ACH;return lvl>=u.lvl;}
 function hofEntry(name){const k=(name||'').trim().toLowerCase();if(!k)return null;if(!PROF.hof[k])PROF.hof[k]={name:name.trim(),games:0,wins:0,bossWins:0,bestReact:null,bestCombo:0};return PROF.hof[k];}
 loadProfile();

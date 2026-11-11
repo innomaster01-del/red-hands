@@ -237,11 +237,16 @@ function drawHandTurn(c,L,o,sk,look){const phi=o.turn,co=Math.cos(phi),si=Math.s
       // nails only on the back, creases only on the palm; both shrink as that face turns away
       if(face>0&&!sk.glove){if(backFacing){let col='#ffeee8';if(nl&&nl.col)col=nl.col==='rainbow'?['#ff4d6d','#ffd23f','#3ee08f','#3b7bff'][pt.i]:nl.col;const nw=0.084*L*(0.35+0.65*face),ny=TIP[pt.i]*L+0.025*L;c.save();c.globalAlpha=face;c.fillStyle=col;c.fill(rrPath(pt.x-nw/2,ny,nw,0.088*L,Math.min(0.037*L,nw/2)));c.restore();}
         else{c.save();c.globalAlpha=face*.8;c.strokeStyle='rgba(60,25,30,.35)';c.lineWidth=0.016*L;c.lineCap='round';for(const kk of[0.17,0.3]){c.beginPath();c.moveTo(pt.x-0.035*L*face,(TIP[pt.i]+kk)*L);c.lineTo(pt.x+0.035*L*face,(TIP[pt.i]+kk)*L);c.stroke();}c.restore();}}}
+    if(pt.k==='f'&&pt.i===2){const rg=item(look.ring);if(rg&&rg.col){const y=0.3*L,w=pt.w+0.02*L,rp=rrPath(pt.x-w/2,y,w,0.045*L,0.02*L),g=c.createLinearGradient(pt.x-w/2,0,pt.x+w/2,0);g.addColorStop(0,shade(rg.col,-0.3));g.addColorStop(.4,'#ffffff');g.addColorStop(1,rg.col);c.fillStyle=g;c.fill(rp);c.lineWidth=0.012*L;c.strokeStyle='rgba(40,20,40,.6)';c.stroke(rp);}}
     else if(pt.k==='t'){round(taper(pt.x1,pt.y1,pt.x2,pt.y2,pt.w,pt.w),(pt.x1+pt.x2)/2,pt.w+Math.abs(pt.x1-pt.x2),far);}
     else{const pp=rrPath(-hw,0.36*L,hw*2,0.62*L,Math.min(0.17*L,hw));round(pp,0,hw*2,0,true);
       // the side of the palm you can now see: a darker band on the edge that is turning toward you
       c.save();c.clip(pp);const side=TH*as*.9,dir=si*co>=0?1:-1;c.fillStyle='rgba(70,22,48,.26)';c.fillRect(dir>0?hw-side:-hw,0.3*L,side,0.8*L);
       if(face>0&&!backFacing&&!sk.glove){c.globalAlpha=face*.8;c.strokeStyle='rgba(60,25,30,.32)';c.lineWidth=0.016*L;c.lineCap='round';const q=(x,y)=>[x*L*co,y*L];
         const m=-1;c.beginPath();c.moveTo(...q(m*0.27,0.5));c.quadraticCurveTo(...q(m*0.02,0.47),...q(m*-0.16,0.56));c.stroke();c.beginPath();c.moveTo(...q(m*0.27,0.6));c.quadraticCurveTo(...q(m*0.05,0.58),...q(m*-0.1,0.66));c.stroke();c.beginPath();c.moveTo(...q(m*-0.17,0.5));c.quadraticCurveTo(...q(m*-0.12,0.75),...q(m*-0.02,0.92));c.stroke();}
-      const ws=c.createLinearGradient(0,0.74*L,0,0.92*L);ws.addColorStop(0,'rgba(60,18,58,0)');ws.addColorStop(1,'rgba(60,18,58,.3)');c.globalAlpha=1;c.fillStyle=ws;c.fillRect(-L,0.74*L,2*L,0.2*L);c.restore();}});
+      c.globalAlpha=1;
+      // tattoo lives on the back of the hand; the watch band wraps the wrist and is seen from every side
+      if(backFacing&&face>0&&!sk.glove){const tt=item(look.tattoo);if(tt&&tt.shape){c.save();c.globalAlpha=face;c.scale(co,1);drawTattoo(c,L,tt.shape);c.restore();}}
+      {const wt=item(look.watch);if(wt&&wt.band){c.save();c.scale(Math.max(.12,hw/(0.295*L)),1);drawWatch(c,L,wt,!(backFacing&&face>.2));c.restore();}}
+      const ws=c.createLinearGradient(0,0.74*L,0,0.92*L);ws.addColorStop(0,'rgba(60,18,58,0)');ws.addColorStop(1,'rgba(60,18,58,.3)');c.fillStyle=ws;c.fillRect(-L,0.74*L,2*L,0.2*L);c.restore();}});
   if((o.flash||0)>.55){c.save();c.globalAlpha=Math.min(1,(o.flash-.55)*1.8);c.fillStyle='#fff';c.fill(rrPath(-hw,0.36*L,hw*2,0.62*L,Math.min(0.17*L,hw)));c.restore();}}

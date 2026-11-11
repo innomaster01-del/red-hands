@@ -37,7 +37,7 @@ function unlockAch(id){if(PROF.ach[id])return;PROF.ach[id]=Date.now();newAch.pus
 // ---------- start flows ----------
 function inGameUI(on){$('exit').style.display=on?'block':'none';$('mute').style.display=on?'block':'none';$('help').style.display=on?'block':'none';}
 const DEMO={tap:'<i class="rp"></i><i class="h">👆</i>',dodge:'<i class="x">👋</i><i class="h">✋</i>',feint:'<i class="h">✋</i>',combo:'<i>x2</i><i>x3</i><i>x4</i><i>x5</i>',
-  special:()=>`<span class="drawn">${glyphSVG('zig',46)}</span>`,diag:'<i class="h">✋</i>',breaker:'<i>🛡️</i><i class="b2">💥</i>',fatal:()=>`<span class="drawn">${glyphSVG('vee',46)}</span>`};
+  special:()=>`<span class="drawn">${glyphSVG('zig',46)}</span>`,diag:'<span class="drawn"><svg class="glyph" width="46" height="46" viewBox="0 0 46 46"><path d="M10 36L36 10M36 10H20M36 10V26" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>',breaker:'<i>🛡️</i><i class="b2">💥</i>',fatal:()=>`<span class="drawn">${glyphSVG('vee',46)}</span>`};
 let guideNext=null;
 function showGuide(next){guideNext=next||null;$('gTitle').textContent=t('guide_title');$('gGo').textContent=t('guide_go');
   $('gList').innerHTML=tr('guide').map((g,i)=>`<div class="gc" style="animation-delay:${i*50}ms"><div class="demo d-${g[0]}">${typeof DEMO[g[0]]==='function'?DEMO[g[0]]():DEMO[g[0]]}</div><div><b>${g[1]?g[1]+' ':''}${g[2]}</b><span>${g[3]}</span></div></div>`).join('');
@@ -189,7 +189,7 @@ function renderShop(){
     let sw;if(i.cat==='sleeve')sw=`background:linear-gradient(135deg,${i.dark},${i.main},${i.light})`;else if(i.cat==='skin')sw=`background:linear-gradient(135deg,${i.c[0]},${i.c[2]})`;
     else if(i.cat==='nails'&&i.col&&i.col!=='rainbow')sw=`background:${i.col}`;else if(i.cat==='ring')sw=`background:radial-gradient(circle,#fff 0 30%,${i.col} 31% 60%,#fff 61%)`;else sw='background:#efecff';
     const ic=(i.cat==='sleeve'||i.cat==='skin'||(i.cat==='nails'&&i.col&&i.col!=='rainbow')||i.cat==='ring')?(i.gem?'💎':''):(i.ic||'');
-    const pr=eq?`<span class="pr eq">✓ ${t('equipped')}</span>`:locked?`<span class="pr lock">🔒 ${t('lvl')} ${i.lvl}</span>`:own?`<span class="pr own">${t('owned')}</span>`:`<span class="pr">🪙 ${i.price}</span>`;
+    const pr=eq?`<span class="pr eq">✓ ${t('equipped')}</span>`:(i.boss&&!own)?`<span class="pr lock">🔒 ${t('boss_item',(window.RIVALS||[]).find(r=>r.id===i.boss).name)}</span>`:locked?`<span class="pr lock">🔒 ${t('lvl')} ${i.lvl}</span>`:own?`<span class="pr own">${t('owned')}</span>`:`<span class="pr">🪙 ${i.price}</span>`;
     return`<button class="it ${tent===i.id?'sel':''}" data-id="${i.id}"><div class="sw" style="${sw}">${ic}</div><div class="nm">${i.n[LANG]}</div>${pr}</button>`;}).join('');
   $('sGrid').querySelectorAll('.it').forEach(b=>b.onclick=()=>pickItem(b.dataset.id));
   renderBuyBar();
@@ -197,6 +197,7 @@ function renderShop(){
 function pickItem(id){const i=item(id);
   if(i.cat==='sound')previewSound(id);
   if(i.cat==='arena'&&!owns(id)){toast('🔒',t('arena_lock',i.lvl));tent=id;renderShop();return;}
+  if(i.boss&&!owns(id)){toast('🔒',t('boss_item',(window.RIVALS||[]).find(r=>r.id===i.boss).name));tent=null;renderShop();return;}
   if(owns(id)){PROF.equip[i.cat]=id;saveProfile();tent=null;sfxUI();}
   else tent=id;
   pvBurstT=0;renderShop();}
